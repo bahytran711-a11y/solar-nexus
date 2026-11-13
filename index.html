@@ -3,178 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solar Flare OS v3.1 - Tối Ưu Mobile Hoàn Hảo</title>
+    <title>Forest Nexus v3.7 - Hiển Thị Điểm Chung Trực Tiếp Trên Dây Nối</title>
     <style>
         :root {
-            --bg-deep: #090406;
-            --glass: rgba(24, 12, 16, 0.88);
-            --glass-hover: rgba(42, 18, 22, 0.95);
-            --border: rgba(255, 107, 53, 0.35);
-            --fire-orange: #ff6b35;
-            --fire-red: #ff2a5f;
-            --fire-gold: #ffb703;
-            --text-main: #fff8f6;
-            --text-sub: #d4a59a;
+            --bg-deep: #111b18;
+            --glass: rgba(24, 38, 34, 0.9);
+            --glass-hover: rgba(36, 56, 50, 0.96);
+            --border: rgba(220, 205, 186, 0.3);
+            --forest-green: #52796F;
+            --forest-light: #74a397;
+            --sand-beige: #DCCDBA;
+            --sand-bright: #f3eadc;
+            --text-main: #f3eadc;
+            --text-sub: #b5a898;
+            --danger: #c95d63;
+            --gold-accent: #e9c46a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
         body { background: var(--bg-deep); color: var(--text-main); height: 100vh; overflow: hidden; user-select: none; -webkit-user-select: none; }
 
         .ambient-glow {
-            position: fixed; top: -20%; left: 30%; width: 60vw; height: 60vw;
-            background: radial-gradient(circle, rgba(255, 42, 95, 0.14) 0%, rgba(255, 107, 53, 0.06) 45%, transparent 70%);
-            pointer-events: none; z-index: 0; animation: pulseBg 8s infinite alternate;
+            position: fixed; top: -20%; left: 25%; width: 65vw; height: 65vw;
+            background: radial-gradient(circle, rgba(82, 121, 111, 0.22) 0%, rgba(220, 205, 186, 0.05) 45%, transparent 70%);
+            pointer-events: none; z-index: 0; animation: pulseBg 9s infinite alternate;
         }
-        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.18); opacity: 1; } }
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.15); opacity: 1; } }
 
         #neuralCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; cursor: grab; touch-action: none; }
         #neuralCanvas:active { cursor: grabbing; }
 
-        /* Nút mở lại sidebar gọn gàng */
         .sidebar-open-btn {
             position: fixed; top: 15px; left: 15px; width: 38px; height: 38px; border-radius: 10px;
             background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-            border: 1px solid var(--border); color: var(--fire-gold); display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border); color: var(--sand-beige); display: flex; align-items: center; justify-content: center;
             cursor: pointer; z-index: 100; transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); font-size: 1em;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45); font-size: 1em;
             opacity: 0; pointer-events: none; transform: scale(0.8);
         }
         .sidebar.collapsed ~ .sidebar-open-btn {
             opacity: 1; pointer-events: auto; transform: scale(1);
         }
-        .sidebar-open-btn:hover { background: var(--glass-hover); border-color: var(--fire-orange); color: #fff; transform: scale(1.08); }
+        .sidebar-open-btn:hover { background: var(--forest-green); border-color: var(--sand-beige); color: var(--sand-bright); transform: scale(1.08); }
 
-        /* Khung Sidebar chính: Tối ưu kích thước linh hoạt trên mobile */
         .sidebar {
             position: fixed; top: 15px; left: 15px; width: 320px; max-width: calc(100vw - 30px); max-height: calc(100vh - 30px);
             background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
             border: 1px solid var(--border); border-radius: 16px; padding: 14px;
             display: flex; flex-direction: column; z-index: 50;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
         }
         .sidebar.collapsed { transform: translateX(-360px); opacity: 0; pointer-events: none; }
 
         .sidebar-header {
-            display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px;
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 6px;
         }
 
         .header-left-group { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+        .header-right-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-        .sidebar-toggle-btn {
+        .sidebar-toggle-btn, .sound-toggle-btn {
             width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border);
-            background: rgba(255, 107, 53, 0.12); color: var(--fire-gold);
+            background: rgba(82, 121, 111, 0.25); color: var(--sand-beige);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; font-size: 0.9em; flex-shrink: 0;
+            cursor: pointer; transition: 0.2s; font-size: 0.85em; flex-shrink: 0;
         }
-        .sidebar-toggle-btn:hover { background: var(--fire-orange); color: #000; }
+        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover { background: var(--forest-green); color: var(--sand-bright); }
 
         .logo-text {
-            font-size: 1em; font-weight: 800; letter-spacing: 0.5px;
-            background: linear-gradient(90deg, var(--fire-gold), var(--fire-orange), var(--fire-red));
+            font-size: 0.98em; font-weight: 800; letter-spacing: 0.6px;
+            background: linear-gradient(90deg, var(--sand-bright), var(--sand-beige), var(--forest-light));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         .btn-new-trigger {
-            width: 28px; height: 28px; border-radius: 50%; border: none; flex-shrink: 0;
-            background: linear-gradient(135deg, var(--fire-orange), var(--fire-red));
-            color: #ffffff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.25s; padding: 0;
-            box-shadow: 0 4px 15px rgba(255, 42, 95, 0.45);
+            width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(220, 205, 186, 0.4); flex-shrink: 0;
+            background: var(--forest-green); color: var(--sand-bright); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.25s; padding: 0; box-shadow: 0 4px 12px rgba(82, 121, 111, 0.5);
         }
-        .btn-new-trigger:hover { transform: scale(1.1) rotate(90deg); }
+        .btn-new-trigger:hover { transform: scale(1.1) rotate(90deg); background: var(--forest-light); }
 
         .search-box {
             width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
-            background: rgba(10, 4, 6, 0.8); color: #fff; font-size: 0.85em; margin-bottom: 10px;
+            background: rgba(14, 23, 20, 0.85); color: var(--sand-bright); font-size: 0.85em; margin-bottom: 10px;
         }
-        .search-box:focus { outline: none; border-color: var(--fire-orange); }
+        .search-box::placeholder { color: var(--text-sub); }
+        .search-box:focus { outline: none; border-color: var(--sand-beige); }
 
         .node-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; max-height: 45vh; }
         .node-item {
-            padding: 8px 10px; border-radius: 9px; background: rgba(255, 255, 255, 0.03);
+            padding: 8px 10px; border-radius: 9px; background: rgba(220, 205, 186, 0.04);
             border: 1px solid transparent; cursor: pointer; transition: 0.2s;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .node-item:hover { background: var(--glass-hover); border-color: rgba(255, 107, 53, 0.4); }
+        .node-item:hover { background: var(--glass-hover); border-color: rgba(220, 205, 186, 0.3); }
         .node-item.active {
-            background: linear-gradient(90deg, rgba(255, 107, 53, 0.2), rgba(255, 42, 95, 0.1));
-            border-color: var(--fire-orange); box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+            background: linear-gradient(90deg, rgba(82, 121, 111, 0.45), rgba(220, 205, 186, 0.12));
+            border-color: var(--sand-beige); box-shadow: 0 0 15px rgba(82, 121, 111, 0.25);
         }
-        .node-item-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-item.multi-selected {
+            background: rgba(233, 196, 106, 0.18);
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 12px rgba(233, 196, 106, 0.25);
+        }
+        .node-item-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sand-bright); }
 
-        /* Ngăn Drawer xem & tạo chi tiết gọn gàng trên mobile */
+        /* Thanh công cụ nổi khi chọn nhiều mục */
+        .multi-select-bar {
+            position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: rgba(20, 34, 30, 0.95); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border: 1.5px solid var(--gold-accent); border-radius: 30px; padding: 8px 16px;
+            display: flex; align-items: center; gap: 12px; z-index: 90;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s;
+            opacity: 0; pointer-events: none; width: max-content; max-width: 92vw;
+        }
+        .multi-select-bar.visible {
+            transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto;
+        }
+        .ms-count { font-size: 0.85em; font-weight: 700; color: var(--gold-accent); white-space: nowrap; }
+        .btn-merge {
+            background: linear-gradient(135deg, var(--forest-green), #3f6158);
+            border: 1px solid var(--sand-beige); color: var(--sand-bright);
+            padding: 6px 14px; border-radius: 20px; font-size: 0.82em; font-weight: 700;
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .btn-merge:hover { background: var(--gold-accent); color: var(--bg-deep); border-color: var(--gold-accent); }
+        .btn-merge:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-cancel-ms {
+            background: rgba(201, 93, 99, 0.2); border: 1px solid rgba(201, 93, 99, 0.5);
+            color: #f4a2a6; padding: 6px 12px; border-radius: 20px; font-size: 0.8em;
+            font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .btn-cancel-ms:hover { background: var(--danger); color: #fff; }
+
+        /* Modal nhập điểm chung khi ghép lục địa */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(9, 15, 13, 0.78); backdrop-filter: blur(8px);
+            z-index: 150; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.25s; padding: 16px;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .merge-modal {
+            background: var(--glass); border: 1.5px solid var(--gold-accent); border-radius: 18px;
+            width: 100%; max-width: 420px; padding: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+            transform: scale(0.92); transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.open .merge-modal { transform: scale(1); }
+        .merge-modal h3 { color: var(--gold-accent); font-size: 1.1em; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .merge-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+        .merge-tag { font-size: 0.75em; padding: 3px 9px; border-radius: 12px; background: rgba(82, 121, 111, 0.35); border: 1px solid var(--forest-light); color: var(--sand-bright); }
+
         .drawer {
-            position: fixed; top: 15px; right: 15px; width: 380px; max-width: calc(100vw - 30px); max-height: calc(100vh - 30px);
+            position: fixed; top: 15px; right: 15px; width: 390px; max-width: calc(100vw - 30px); max-height: calc(100vh - 30px);
             background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border); border-radius: 16px; padding: 18px;
             z-index: 60; display: flex; flex-direction: column; overflow-y: auto;
-            box-shadow: -10px 12px 40px rgba(0, 0, 0, 0.75);
+            box-shadow: -10px 12px 40px rgba(0, 0, 0, 0.65);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
         }
-        .drawer.hidden { transform: translateX(420px); opacity: 0; pointer-events: none; }
+        .drawer.hidden { transform: translateX(430px); opacity: 0; pointer-events: none; }
 
         .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .badge { font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; background: rgba(255, 183, 3, 0.15); color: var(--fire-gold); font-weight: 700; }
+        .badge { font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 20px; background: rgba(82, 121, 111, 0.35); color: var(--sand-beige); border: 1px solid rgba(220, 205, 186, 0.25); font-weight: 700; }
         .close-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2em; cursor: pointer; padding: 2px 6px; border-radius: 6px; }
-        .close-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .close-btn:hover { color: var(--sand-bright); background: rgba(220, 205, 186, 0.12); }
 
-        #viewTitle { font-size: 1.2em; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.3; }
-        #viewContent { font-size: 0.9em; color: #e2d1cd; line-height: 1.6; white-space: pre-line; user-select: text; min-height: 40px; }
+        #viewTitle { font-size: 1.2em; font-weight: 700; color: var(--sand-beige); margin-bottom: 8px; line-height: 1.3; }
+        #viewContent { font-size: 0.9em; color: var(--sand-bright); line-height: 1.65; white-space: pre-line; user-select: text; min-height: 40px; }
         
         #viewImageBox { margin-top: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); display: none; }
         #viewImage { width: 100%; height: auto; display: block; object-fit: cover; cursor: zoom-in; }
 
         .links-section { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
-        .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .link-chip {
-            padding: 4px 10px; border-radius: 20px; font-size: 0.78em; font-weight: 600;
-            background: rgba(255, 107, 53, 0.15); border: 1px solid var(--fire-orange); color: var(--fire-gold);
-            cursor: pointer; transition: 0.2s;
+        .connection-card {
+            margin-top: 8px; padding: 10px; border-radius: 10px; background: rgba(82, 121, 111, 0.15);
+            border: 1px solid var(--border); transition: 0.2s; cursor: pointer;
         }
-        .link-chip:hover { background: var(--fire-orange); color: #000; }
+        .connection-card:hover { border-color: var(--sand-beige); background: rgba(82, 121, 111, 0.28); }
+        .connection-title { font-size: 0.85em; font-weight: 700; color: var(--sand-beige); display: flex; align-items: center; justify-content: space-between; }
+        .connection-desc { font-size: 0.8em; color: var(--sand-bright); margin-top: 4px; line-height: 1.4; }
 
         .form-group { margin-bottom: 10px; }
-        label { display: block; font-size: 0.78em; color: var(--text-sub); margin-bottom: 4px; font-weight: 600; }
+        label { display: block; font-size: 0.78em; color: var(--sand-beige); margin-bottom: 4px; font-weight: 600; }
         input[type="text"], textarea, select {
             width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--border);
-            background: rgba(10, 4, 6, 0.8); color: #fff; font-size: 0.88em;
+            background: rgba(14, 23, 20, 0.85); color: var(--sand-bright); font-size: 0.88em;
         }
         textarea { height: 80px; resize: vertical; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--fire-gold); }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sand-beige); }
+
+        .link-builder-container { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+        .link-row { padding: 8px; border-radius: 8px; background: rgba(220, 205, 186, 0.04); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+        .link-row-top { display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; color: var(--sand-bright); font-weight: 600; }
 
         .img-dropzone {
-            border: 1.5px dashed var(--fire-orange); border-radius: 9px; padding: 10px;
+            border: 1.5px dashed var(--forest-light); border-radius: 9px; padding: 10px;
             text-align: center; font-size: 0.8em; color: var(--text-sub); cursor: pointer;
-            background: rgba(255, 107, 53, 0.05); transition: 0.2s;
+            background: rgba(82, 121, 111, 0.12); transition: 0.2s;
         }
-        .img-dropzone:hover { background: rgba(255, 107, 53, 0.12); color: #fff; }
+        .img-dropzone:hover { background: rgba(82, 121, 111, 0.25); color: var(--sand-bright); border-color: var(--sand-beige); }
         #previewImg { max-width: 100%; max-height: 120px; border-radius: 6px; margin-top: 6px; display: none; }
 
         .btn-submit {
             width: 100%; padding: 10px; border: none; border-radius: 9px; font-weight: 700; font-size: 0.9em;
-            background: linear-gradient(135deg, var(--fire-gold), var(--fire-orange), var(--fire-red));
-            color: #090406; cursor: pointer; transition: 0.25s; margin-top: 4px;
+            background: linear-gradient(135deg, var(--forest-green), #3f6158);
+            border: 1px solid var(--sand-beige); color: var(--sand-bright); cursor: pointer; transition: 0.25s; margin-top: 4px;
         }
-        .btn-submit:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(255, 107, 53, 0.5); }
+        .btn-submit:hover { background: var(--sand-beige); color: var(--bg-deep); box-shadow: 0 0 15px rgba(220, 205, 186, 0.35); }
 
         .btn-export, .btn-edit, .btn-delete {
-            padding: 8px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600; cursor: pointer; width: 100%; margin-top: 6px;
+            padding: 8px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600; cursor: pointer; width: 100%; margin-top: 6px; transition: 0.2s;
         }
-        .btn-export { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); color: #22d3ee; }
-        .btn-edit { background: rgba(255, 183, 3, 0.15); border: 1px solid rgba(255, 183, 3, 0.4); color: var(--fire-gold); }
-        .btn-delete { background: rgba(255, 42, 95, 0.15); border: 1px solid rgba(255, 42, 95, 0.4); color: #ff7597; }
+        .btn-export { background: rgba(82, 121, 111, 0.25); border: 1px solid var(--forest-light); color: var(--sand-bright); }
+        .btn-export:hover { background: var(--forest-green); }
+        .btn-edit { background: rgba(220, 205, 186, 0.15); border: 1px solid var(--sand-beige); color: var(--sand-beige); }
+        .btn-edit:hover { background: var(--sand-beige); color: var(--bg-deep); }
+        .btn-delete { background: rgba(201, 93, 99, 0.15); border: 1px solid rgba(201, 93, 99, 0.45); color: #eda4a8; }
+        .btn-delete:hover { background: var(--danger); color: #fff; }
 
         .hint-bar {
             position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
-            background: rgba(15, 7, 10, 0.8); backdrop-filter: blur(8px);
+            background: rgba(17, 27, 24, 0.85); backdrop-filter: blur(8px);
             border: 1px solid var(--border); padding: 5px 14px; border-radius: 20px;
-            font-size: 0.75em; color: var(--text-sub); z-index: 5; pointer-events: none; text-align: center; max-width: 90%;
+            font-size: 0.75em; color: var(--sand-beige); z-index: 5; pointer-events: none; text-align: center; max-width: 92%;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 107, 53, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(220, 205, 186, 0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -187,14 +246,17 @@
         <div class="sidebar-header">
             <div class="header-left-group">
                 <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Ẩn khung">☰</button>
-                <span class="logo-text">🔥 SOLAR NEXUS</span>
+                <span class="logo-text">🌿 FOREST NEXUS</span>
             </div>
-            <button class="btn-new-trigger" onclick="openCreateDrawer()" title="Tạo kiến thức mới">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-            </button>
+            <div class="header-right-group">
+                <button class="sound-toggle-btn" id="soundModeBtn" onclick="cycleSoundMode()" title="Đổi hiệu ứng âm thanh">💧</button>
+                <button class="btn-new-trigger" onclick="openCreateDrawer()" title="Tạo kiến thức mới">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
         </div>
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm kiến thức..." oninput="renderSidebar()">
         <ul class="node-list" id="nodeList"></ul>
@@ -202,6 +264,30 @@
 
     <!-- Nút mở lại sidebar -->
     <button class="sidebar-open-btn" onclick="toggleSidebar()" title="Mở bảng điều khiển">☰</button>
+
+    <!-- Thanh công cụ nổi khi chọn nhiều bài học -->
+    <div class="multi-select-bar" id="multiSelectBar">
+        <span class="ms-count" id="msCountText">Đã chọn: 0 bài</span>
+        <button class="btn-merge" id="btnOpenMerge" onclick="openMergeModal()" disabled>🌍 Ghép Lục Địa</button>
+        <button class="btn-cancel-ms" onclick="clearMultiSelect()">✕ Hủy (Esc)</button>
+    </div>
+
+    <!-- Modal nhập điểm chung khi ghép nhiều mảng lục địa -->
+    <div class="modal-overlay" id="mergeModalOverlay">
+        <div class="merge-modal">
+            <h3>🌍 Hợp Nhất Lục Địa Tri Thức</h3>
+            <p style="font-size: 0.82em; color: var(--text-sub); line-height: 1.4;">Các bài học sau sẽ được liên kết chéo và kéo lại gần nhau thành một cụm thống nhất:</p>
+            <div class="merge-tags" id="mergeSelectedTags"></div>
+            <div class="form-group">
+                <label>💡 Điểm chung cốt lõi để hợp nhất (Bắt buộc):</label>
+                <input type="text" id="mergeCommonInput" placeholder="VD: Cùng thuộc nhóm nguyên lý truyền động thủy lực...">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+                <button class="btn-cancel-ms" style="flex: 1; border-radius: 9px; padding: 10px;" onclick="closeMergeModal()">Hủy bỏ</button>
+                <button class="btn-submit" style="flex: 2; margin-top: 0;" onclick="confirmMergeContinents()">⚡ Xác Nhận Ghép</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Ngăn xem chi tiết -->
     <div class="drawer hidden" id="viewDrawer">
@@ -217,8 +303,8 @@
         </div>
 
         <div class="links-section">
-            <div style="font-size: 0.75em; color: var(--text-sub); font-weight: 700;">MẠCH KẾT NỐI LIÊN QUAN:</div>
-            <div class="tags-wrap" id="viewLinks"></div>
+            <div style="font-size: 0.75em; color: var(--text-sub); font-weight: 700; margin-bottom: 4px;">MẠCH KẾT NỐI & ĐIỂM CHUNG ĐA CHIỀU:</div>
+            <div id="viewConnectionsList"></div>
         </div>
 
         <button class="btn-export" onclick="exportCurrentNode()">📥 Xuất file mục này (.txt)</button>
@@ -229,7 +315,7 @@
     <!-- Ngăn tạo mới hoặc chỉnh sửa -->
     <div class="drawer hidden" id="createDrawer">
         <div class="drawer-header">
-            <span class="badge" id="drawerTitleBadge">🚀 Tạo Hạt Nhân Mới</span>
+            <span class="badge" id="drawerTitleBadge">🌱 Tạo Hạt Nhân Mới</span>
             <button class="close-btn" onclick="closeAllDrawers()">✕</button>
         </div>
         
@@ -239,8 +325,8 @@
         </div>
 
         <div class="form-group">
-            <label>Liên kết với kiến thức khác</label>
-            <select id="newParent"></select>
+            <label>🔗 Liên kết với các bài khác & Ghi rõ điểm chung:</label>
+            <div class="link-builder-container" id="linkBuilderContainer"></div>
         </div>
 
         <div class="form-group">
@@ -257,41 +343,97 @@
             </div>
         </div>
 
-        <button class="btn-submit" id="submitBtnText" onclick="saveNode()">🔥 Kích Hoạt & Lưu Trữ</button>
+        <button class="btn-submit" id="submitBtnText" onclick="saveNode()">🌿 Kích Hoạt & Lưu Trữ</button>
     </div>
 
-    <div class="hint-bar">💡 Kéo để dịch chuyển • Dùng 2 ngón tay hoặc cuộn chuột để Zoom</div>
+    <div class="hint-bar">💡 Giữ Ctrl (PC) hoặc Nhấn giữ (Mobile) để chọn nhiều bài & Ghép lục địa</div>
 
     <script>
+        // --- HỆ THỐNG ÂM THANH UI ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+        let soundMode = localStorage.getItem('forestSoundMode') || 'dew';
 
-            if (type === 'click') {
+        function updateSoundIcon() {
+            const btn = document.getElementById('soundModeBtn');
+            if (!btn) return;
+            if (soundMode === 'dew') { btn.innerText = '💧'; btn.title = 'Âm thanh: Giọt sương rơi'; }
+            else if (soundMode === 'thock') { btn.innerText = '⌨️'; btn.title = 'Âm thanh: Phím cơ trầm'; }
+            else { btn.innerText = '🔇'; btn.title = 'Âm thanh: Đang tắt'; }
+        }
+
+        function cycleSoundMode() {
+            if (soundMode === 'dew') soundMode = 'thock';
+            else if (soundMode === 'thock') soundMode = 'mute';
+            else soundMode = 'dew';
+            localStorage.setItem('forestSoundMode', soundMode);
+            updateSoundIcon();
+            playSound('click');
+        }
+
+        const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseBuffer.length; i++) output[i] = Math.random() * 2 - 1;
+
+        function playSound(type) {
+            if (soundMode === 'mute') return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+
+            if (soundMode === 'dew') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
-            } else if (type === 'whoosh') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                if (type === 'whoosh') {
+                    osc.frequency.setValueAtTime(420, now);
+                    osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'merge') {
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.22);
+                    gain.gain.setValueAtTime(0.14, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.22);
+                } else {
+                    osc.frequency.setValueAtTime(750, now);
+                    osc.frequency.exponentialRampToValueAtTime(1150, now + 0.035);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.035);
+                }
+            } else if (soundMode === 'thock') {
+                const osc = audioCtx.createOscillator();
+                const oscGain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.exponentialRampToValueAtTime(45, now + 0.045);
+                oscGain.gain.setValueAtTime(0.28, now);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+                osc.connect(oscGain); oscGain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.045);
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1200, now);
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.18, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+                noise.start(now); noise.stop(now + 0.025);
             }
         }
 
-        let brainData = JSON.parse(localStorage.getItem('solarNexusV3.1')) || [
-            { id: 1, title: 'Lõi Năng Lượng Trung Tâm', content: 'Chào mừng bro đến với Solar Flare v3.1! Đã tối ưu giao diện mobile gọn gàng và hỗ trợ Zoom (Phóng to/Thu nhỏ) cực mượt.', image: '', links: [2, 3] },
-            { id: 2, title: 'Cơ Khí & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động, tỷ số truyền hộp số và biểu đồ công suất.', image: '', links: [1] },
-            { id: 3, title: 'Tương Tác Đa Nền Tảng', content: 'Hoàn hảo trên cả PC lẫn Mobile.', image: '', links: [1] }
+        let brainData = JSON.parse(localStorage.getItem('forestNexusV3.7')) || JSON.parse(localStorage.getItem('forestNexusV3.6')) || [
+            { id: 1, title: 'Cội Nguồn Tri Thức', content: 'Chào mừng bro đến với Forest Nexus v3.7! Điểm chung nay đã được hiển thị trực tiếp thành nhãn trên dây nối cực kỳ trực quan.', image: '', connections: [{targetId: 2, commonPoint: 'Đều nghiên cứu cơ khí vận hành'}] },
+            { id: 2, title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động, tỷ số truyền hộp số và biểu đồ công suất.', image: '', connections: [{targetId: 1, commonPoint: 'Đều nghiên cứu cơ khí vận hành'}] },
+            { id: 3, title: 'Khí Động Học & Turbo', content: 'Tối ưu hóa dòng khí nạp và áp suất buồng đốt.', image: '', connections: [] },
+            { id: 4, title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp, hộp số sàn và vi sai chống trượt.', image: '', connections: [] }
         ];
 
         let selectedId = null;
@@ -301,14 +443,136 @@
         let pulses = [];
         let typingInterval = null;
 
+        let multiSelectedIds = new Set();
+        let isMobileMultiSelectMode = false;
+        let longPressTimer = null;
+
         let panX = 0;
         let panY = 0;
-        let scale = 1; // Hệ số phóng to thu nhỏ (Zoom)
+        let scale = 1;
         
         let isPanning = false;
         let startPanX = 0;
         let startPanY = 0;
         let initialPinchDistance = null;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('mergeModalOverlay').classList.contains('open')) {
+                    closeMergeModal();
+                } else if (multiSelectedIds.size > 0 || isMobileMultiSelectMode) {
+                    clearMultiSelect();
+                }
+            }
+        });
+
+        function toggleMultiSelect(id) {
+            playSound('click');
+            if (multiSelectedIds.has(id)) {
+                multiSelectedIds.delete(id);
+                if (multiSelectedIds.size === 0) isMobileMultiSelectMode = false;
+            } else {
+                multiSelectedIds.add(id);
+            }
+            updateMultiSelectUI();
+            renderSidebar();
+        }
+
+        function clearMultiSelect() {
+            playSound('click');
+            multiSelectedIds.clear();
+            isMobileMultiSelectMode = false;
+            updateMultiSelectUI();
+            renderSidebar();
+        }
+
+        function updateMultiSelectUI() {
+            const bar = document.getElementById('multiSelectBar');
+            const countText = document.getElementById('msCountText');
+            const mergeBtn = document.getElementById('btnOpenMerge');
+
+            if (multiSelectedIds.size > 0 || isMobileMultiSelectMode) {
+                bar.classList.add('visible');
+                countText.innerText = `Đã chọn: ${multiSelectedIds.size} bài`;
+                mergeBtn.disabled = multiSelectedIds.size < 2;
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        function openMergeModal() {
+            if (multiSelectedIds.size < 2) return;
+            playSound('whoosh');
+            const tagsContainer = document.getElementById('mergeSelectedTags');
+            tagsContainer.innerHTML = '';
+
+            multiSelectedIds.forEach(id => {
+                const node = brainData.find(n => n.id === id);
+                if (node) {
+                    const span = document.createElement('span');
+                    span.className = 'merge-tag';
+                    span.innerText = '🌿 ' + node.title;
+                    tagsContainer.appendChild(span);
+                }
+            });
+
+            document.getElementById('mergeCommonInput').value = '';
+            document.getElementById('mergeModalOverlay').classList.add('open');
+            setTimeout(() => document.getElementById('mergeCommonInput').focus(), 100);
+        }
+
+        function closeMergeModal() {
+            playSound('click');
+            document.getElementById('mergeModalOverlay').classList.remove('open');
+        }
+
+        function confirmMergeContinents() {
+            const commonPoint = document.getElementById('mergeCommonInput').value.trim();
+            if (!commonPoint) {
+                alert('Bro phải nhập điểm chung cốt lõi giữa các bài học này nha!');
+                return;
+            }
+
+            const idsArray = Array.from(multiSelectedIds);
+            let avgX = 0, avgY = 0;
+            idsArray.forEach(id => {
+                if (nodesPos[id]) {
+                    avgX += nodesPos[id].x;
+                    avgY += nodesPos[id].y;
+                }
+            });
+            avgX /= idsArray.length;
+            avgY /= idsArray.length;
+
+            for (let i = 0; i < idsArray.length; i++) {
+                const nodeA = brainData.find(n => n.id === idsArray[i]);
+                if (!nodeA) continue;
+                if (!nodeA.connections) nodeA.connections = [];
+
+                if (nodesPos[nodeA.id]) {
+                    const angle = (i / idsArray.length) * Math.PI * 2;
+                    nodesPos[nodeA.id].x = avgX + Math.cos(angle) * 65;
+                    nodesPos[nodeA.id].y = avgY + Math.sin(angle) * 65;
+                }
+
+                for (let j = 0; j < idsArray.length; j++) {
+                    if (i === j) continue;
+                    const targetId = idsArray[j];
+                    const existing = nodeA.connections.find(c => c.targetId === targetId);
+                    if (existing) {
+                        existing.commonPoint = commonPoint;
+                    } else {
+                        nodeA.connections.push({ targetId: targetId, commonPoint: commonPoint });
+                    }
+                }
+            }
+
+            playSound('merge');
+            saveToStorage();
+            closeMergeModal();
+            clearMultiSelect();
+            if (idsArray.length > 0) openViewDrawer(idsArray[0]);
+        }
 
         function toggleSidebar() {
             playSound('click');
@@ -326,9 +590,9 @@
                     nodesPos[node.id] = {
                         x: cx + Math.cos(angle) * dist,
                         y: cy + Math.sin(angle) * dist,
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: (Math.random() - 0.5) * 0.3,
-                        radius: node.links.length > 1 ? 10 : 7
+                        vx: (Math.random() - 0.5) * 0.25,
+                        vy: (Math.random() - 0.5) * 0.25,
+                        radius: (node.connections && node.connections.length > 1) ? 10 : 7
                     };
                 }
             });
@@ -336,7 +600,7 @@
 
         function saveToStorage() {
             try {
-                localStorage.setItem('solarNexusV3.1', JSON.stringify(brainData));
+                localStorage.setItem('forestNexusV3.7', JSON.stringify(brainData));
             } catch (e) {
                 alert('Bộ nhớ trình duyệt đầy do ảnh quá lớn!');
             }
@@ -350,13 +614,34 @@
             brainData
                 .filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q))
                 .forEach(node => {
+                    const connsCount = node.connections ? node.connections.length : 0;
+                    const isMulti = multiSelectedIds.has(node.id);
                     const li = document.createElement('li');
-                    li.className = `node-item ${node.id === selectedId ? 'active' : ''}`;
+                    li.className = `node-item ${node.id === selectedId ? 'active' : ''} ${isMulti ? 'multi-selected' : ''}`;
                     li.innerHTML = `
-                        <span class="node-item-title">${node.image ? '🖼️' : '🔥'} ${node.title}</span>
-                        <span style="font-size:0.7em; color:var(--fire-gold)">${node.links.length} 🔗</span>
+                        <span class="node-item-title">${isMulti ? '✅' : (node.image ? '🖼️' : '🌿')} ${node.title}</span>
+                        <span style="font-size:0.7em; color:var(--sand-beige)">${connsCount} 🔗</span>
                     `;
-                    li.onclick = () => { playSound('click'); openViewDrawer(node.id); };
+                    
+                    li.onclick = (e) => {
+                        if (e.ctrlKey || e.metaKey || isMobileMultiSelectMode || multiSelectedIds.size > 0) {
+                            toggleMultiSelect(node.id);
+                        } else {
+                            playSound('click');
+                            openViewDrawer(node.id);
+                        }
+                    };
+
+                    li.addEventListener('touchstart', () => {
+                        longPressTimer = setTimeout(() => {
+                            isMobileMultiSelectMode = true;
+                            toggleMultiSelect(node.id);
+                            if (navigator.vibrate) navigator.vibrate(40);
+                        }, 420);
+                    }, { passive: true });
+                    li.addEventListener('touchend', () => clearTimeout(longPressTimer));
+                    li.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
                     list.appendChild(li);
                 });
         }
@@ -398,23 +683,67 @@
                 imgBox.style.display = 'none';
             }
 
-            const linksWrap = document.getElementById('viewLinks');
-            linksWrap.innerHTML = '';
-            const connected = brainData.filter(n => node.links.includes(n.id) || n.links.includes(node.id));
+            const connsList = document.getElementById('viewConnectionsList');
+            connsList.innerHTML = '';
             
-            if (connected.length === 0) {
-                linksWrap.innerHTML = '<span style="font-size:0.8em; color:var(--text-sub)">Chưa nối với hạt nhân nào</span>';
+            if (!node.connections || node.connections.length === 0) {
+                connsList.innerHTML = '<span style="font-size:0.8em; color:var(--text-sub)">Chưa nối với bài học nào</span>';
             } else {
-                connected.forEach(target => {
-                    const chip = document.createElement('div');
-                    chip.className = 'link-chip';
-                    chip.innerText = '⚡ ' + target.title;
-                    chip.onclick = () => { playSound('click'); openViewDrawer(target.id); };
-                    linksWrap.appendChild(chip);
+                node.connections.forEach(conn => {
+                    const targetNode = brainData.find(n => n.id === conn.targetId);
+                    if (targetNode) {
+                        const card = document.createElement('div');
+                        card.className = 'connection-card';
+                        card.innerHTML = `
+                            <div class="connection-title">
+                                <span>🍃 ${targetNode.title}</span>
+                                <span style="font-size:0.75em; color:var(--forest-light);">Xem nhanh ➔</span>
+                            </div>
+                            <div class="connection-desc"><b>Điểm chung:</b> ${conn.commonPoint || 'Chưa cập nhật điểm chung'}</div>
+                        `;
+                        card.onclick = () => { playSound('click'); openViewDrawer(targetNode.id); };
+                        connsList.appendChild(card);
+                    }
                 });
             }
 
             renderSidebar();
+        }
+
+        function buildLinkSelector(currentConnections = [], currentId = null) {
+            const container = document.getElementById('linkBuilderContainer');
+            container.innerHTML = '';
+
+            const availableNodes = brainData.filter(n => !currentId || n.id !== currentId);
+            if (availableNodes.length === 0) {
+                container.innerHTML = '<span style="font-size:0.8em; color:var(--text-sub)">Chưa có bài học nào khác để liên kết.</span>';
+                return;
+            }
+
+            availableNodes.forEach(target => {
+                const existing = currentConnections.find(c => c.targetId === target.id);
+                const isChecked = !!existing;
+                const pointVal = existing ? existing.commonPoint : '';
+
+                const row = document.createElement('div');
+                row.className = 'link-row';
+                row.innerHTML = `
+                    <div class="link-row-top">
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--sand-bright); margin:0;">
+                            <input type="checkbox" class="conn-checkbox" value="${target.id}" ${isChecked ? 'checked' : ''} onchange="toggleConnInput(this)">
+                            <b>${target.title}</b>
+                        </label>
+                    </div>
+                    <input type="text" class="conn-input" data-target-id="${target.id}" placeholder="Điểm chung giữa 2 bài học này..." value="${pointVal}" ${isChecked ? '' : 'style="display:none;"'}>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function toggleConnInput(checkbox) {
+            playSound('click');
+            const input = checkbox.closest('.link-row').querySelector('.conn-input');
+            input.style.display = checkbox.checked ? 'block' : 'none';
         }
 
         function openCreateDrawer(editId = null) {
@@ -424,25 +753,15 @@
             document.getElementById('viewDrawer').classList.add('hidden');
             document.getElementById('createDrawer').classList.remove('hidden');
 
-            const select = document.getElementById('newParent');
-            select.innerHTML = '<option value="">-- Đứng độc lập --</option>';
-            
-            brainData.forEach(n => {
-                if (editId && n.id === editId) return;
-                const opt = document.createElement('option');
-                opt.value = n.id;
-                opt.innerText = n.title;
-                select.appendChild(opt);
-            });
-
             if (editId) {
                 editingNodeId = editId;
                 const node = brainData.find(n => n.id === editId);
                 document.getElementById('drawerTitleBadge').innerText = '✏️ Chỉnh Sửa Hạt Nhân';
                 document.getElementById('newTitle').value = node.title;
                 document.getElementById('newContent').value = node.content || '';
-                select.value = node.links.length > 0 ? node.links[0] : '';
                 
+                buildLinkSelector(node.connections || [], editId);
+
                 currentBase64Image = node.image || '';
                 const preview = document.getElementById('previewImg');
                 if (currentBase64Image) {
@@ -454,12 +773,15 @@
                 document.getElementById('submitBtnText').innerText = '💾 Lưu Thay Đổi';
             } else {
                 editingNodeId = null;
-                document.getElementById('drawerTitleBadge').innerText = '🚀 Tạo Hạt Nhân Mới';
+                document.getElementById('drawerTitleBadge').innerText = '🌱 Tạo Hạt Nhân Mới';
                 document.getElementById('newTitle').value = '';
                 document.getElementById('newContent').value = '';
+                
+                buildLinkSelector([], null);
+
                 currentBase64Image = '';
                 document.getElementById('previewImg').style.display = 'none';
-                document.getElementById('submitBtnText').innerText = '🔥 Kích Hoạt & Lưu Trữ';
+                document.getElementById('submitBtnText').innerText = '🌿 Kích Hoạt & Lưu Trữ';
             }
         }
 
@@ -482,12 +804,20 @@
             const node = brainData.find(n => n.id === selectedId);
             if (!node) return;
 
-            const fileContent = `========================================\nCHỦ ĐỀ: ${node.title}\n========================================\n\nNỘI DUNG:\n${node.content || 'Không có nội dung'}\n\nLIÊN KẾT ID: ${node.links.join(', ') || 'Không có'}\n`;
+            let connsText = '';
+            if (node.connections) {
+                node.connections.forEach(c => {
+                    const t = brainData.find(n => n.id === c.targetId);
+                    if (t) connsText += `- Liên kết tới [${t.title}]: ${c.commonPoint}\n`;
+                });
+            }
+
+            const fileContent = `========================================\nCHỦ ĐỀ: ${node.title}\n========================================\n\nCÁC LIÊN KẾT & ĐIỂM CHUNG:\n${connsText || 'Không có'}\n\nNỘI DUNG:\n${node.content || 'Không có nội dung'}\n`;
             const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${node.title.replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, '_')}_SolarNexus.txt`;
+            a.download = `${node.title.replace(/[^a-zA-Z0-9à-úÀ-Ú]/g, '_')}_ForestNexus.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -541,9 +871,19 @@
             playSound('click');
             const title = document.getElementById('newTitle').value.trim();
             const content = document.getElementById('newContent').value.trim();
-            const parentId = parseInt(document.getElementById('newParent').value);
 
             if (!title) return alert('Nhập tên chủ đề đã bro ơi!');
+
+            let connections = [];
+            document.querySelectorAll('.link-row').forEach(row => {
+                const cb = row.querySelector('.conn-checkbox');
+                if (cb && cb.checked) {
+                    const targetId = parseInt(cb.value);
+                    const cpInput = row.querySelector('.conn-input');
+                    const commonPoint = cpInput ? cpInput.value.trim() : '';
+                    connections.push({ targetId, commonPoint });
+                }
+            });
 
             requestAnimationFrame(() => {
                 if (editingNodeId) {
@@ -552,11 +892,20 @@
                         node.title = title;
                         node.content = content;
                         node.image = currentBase64Image;
-                        if (parentId && !node.links.includes(parentId)) {
-                            node.links.push(parentId);
-                            const parent = brainData.find(n => n.id === parentId);
-                            if (parent && !parent.links.includes(editingNodeId)) parent.links.push(editingNodeId);
-                        }
+                        node.connections = connections;
+
+                        connections.forEach(conn => {
+                            const targetNode = brainData.find(n => n.id === conn.targetId);
+                            if (targetNode) {
+                                if (!targetNode.connections) targetNode.connections = [];
+                                let backConn = targetNode.connections.find(c => c.targetId === editingNodeId);
+                                if (backConn) {
+                                    backConn.commonPoint = conn.commonPoint;
+                                } else {
+                                    targetNode.connections.push({ targetId: editingNodeId, commonPoint: conn.commonPoint });
+                                }
+                            }
+                        });
                     }
                     saveToStorage();
                     openViewDrawer(editingNodeId);
@@ -567,20 +916,24 @@
                         title: title,
                         content: content,
                         image: currentBase64Image,
-                        links: parentId ? [parentId] : []
+                        connections: connections
                     };
 
                     brainData.push(newNode);
-                    if (parentId) {
-                        const parent = brainData.find(n => n.id === parentId);
-                        if (parent && !parent.links.includes(newId)) parent.links.push(newId);
-                    }
+
+                    connections.forEach(conn => {
+                        const targetNode = brainData.find(n => n.id === conn.targetId);
+                        if (targetNode) {
+                            if (!targetNode.connections) targetNode.connections = [];
+                            targetNode.connections.push({ targetId: newId, commonPoint: conn.commonPoint });
+                        }
+                    });
 
                     nodesPos[newId] = {
-                        x: window.innerWidth / 2 - panX + (Math.random() * 80 - 40),
-                        y: window.innerHeight / 2 - panY + (Math.random() * 80 - 40),
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: (Math.random() - 0.5) * 0.3,
+                        x: (window.innerWidth / 2 - panX) / scale + (Math.random() * 80 - 40),
+                        y: (window.innerHeight / 2 - panY) / scale + (Math.random() * 80 - 40),
+                        vx: (Math.random() - 0.5) * 0.25,
+                        vy: (Math.random() - 0.5) * 0.25,
                         radius: 9
                     };
 
@@ -593,13 +946,17 @@
         function deleteCurrentNode() {
             playSound('click');
             if (!selectedId) return;
-            if (!confirm('Bro chắc chắn muốn xóa đốm lửa kiến thức này chứ?')) return;
+            if (!confirm('Bro chắc chắn muốn xóa mầm tri thức này chứ?')) return;
 
             brainData = brainData.filter(n => n.id !== selectedId);
             brainData.forEach(n => {
-                n.links = n.links.filter(id => id !== selectedId);
+                if (n.connections) {
+                    n.connections = n.connections.filter(c => c.targetId !== selectedId);
+                }
             });
             delete nodesPos[selectedId];
+            multiSelectedIds.delete(selectedId);
+            updateMultiSelectUI();
             saveToStorage();
             closeAllDrawers();
         }
@@ -608,6 +965,7 @@
         const ctx = canvas.getContext('2d');
         let draggingNodeId = null;
         let isDraggingMoved = false;
+        let isCtrlPressedOnDown = false;
 
         function resize() {
             const dpr = window.devicePixelRatio || 1;
@@ -624,37 +982,20 @@
         setInterval(() => {
             if (brainData.length < 2) return;
             const n1 = brainData[Math.floor(Math.random() * brainData.length)];
-            if (n1.links.length > 0) {
-                const targetId = n1.links[Math.floor(Math.random() * n1.links.length)];
-                pulses.push({ from: n1.id, to: targetId, progress: 0 });
+            if (n1.connections && n1.connections.length > 0) {
+                const conn = n1.connections[Math.floor(Math.random() * n1.connections.length)];
+                pulses.push({ from: n1.id, to: conn.targetId, progress: 0 });
             }
         }, 800);
 
         function animate() {
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-            if (draggingNodeId) {
-                const draggedPos = nodesPos[draggingNodeId];
-                brainData.forEach(target => {
-                    if (target.id !== draggingNodeId) {
-                        const tp = nodesPos[target.id];
-                        if (tp && Math.hypot((draggedPos.x * scale + panX) - (tp.x * scale + panX), (draggedPos.y * scale + panY) - (tp.y * scale + panY)) < 60 * scale) {
-                            const draggedNode = brainData.find(n => n.id === draggingNodeId);
-                            if (draggedNode && !draggedNode.links.includes(target.id)) {
-                                draggedNode.links.push(target.id);
-                                target.links.push(draggingNodeId);
-                                saveToStorage();
-                                playSound('click');
-                            }
-                        }
-                    }
-                });
-            }
-
             ctx.save();
             ctx.translate(panX, panY);
             ctx.scale(scale, scale);
 
+            const drawnLinks = new Set();
             brainData.forEach(node => {
                 const p1 = nodesPos[node.id];
                 if (!p1) return;
@@ -666,18 +1007,60 @@
                     if (p1.y < 50 || p1.y > window.innerHeight - 50) p1.vy *= -1;
                 }
 
-                node.links.forEach(targetId => {
-                    const p2 = nodesPos[targetId];
-                    if (p2) {
-                        const isActive = (node.id === selectedId || targetId === selectedId);
-                        ctx.beginPath();
-                        ctx.moveTo(p1.x, p1.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.strokeStyle = isActive ? 'rgba(255, 183, 3, 0.85)' : 'rgba(255, 107, 53, 0.22)';
-                        ctx.lineWidth = isActive ? 2.2 : 1.2;
-                        ctx.stroke();
-                    }
-                });
+                if (node.connections) {
+                    node.connections.forEach(conn => {
+                        const linkKey = [node.id, conn.targetId].sort().join('-');
+                        if (!drawnLinks.has(linkKey)) {
+                            drawnLinks.add(linkKey);
+                            const p2 = nodesPos[conn.targetId];
+                            if (p2) {
+                                const isActive = (node.id === selectedId || conn.targetId === selectedId || (multiSelectedIds.has(node.id) && multiSelectedIds.has(conn.targetId)));
+                                
+                                // Vẽ đường dây nối
+                                ctx.beginPath();
+                                ctx.moveTo(p1.x, p1.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.strokeStyle = isActive ? 'rgba(233, 196, 106, 0.85)' : 'rgba(82, 121, 111, 0.35)';
+                                ctx.lineWidth = isActive ? 2.2 : 1.3;
+                                ctx.stroke();
+
+                                // Hiển thị nội dung điểm chung ở chính giữa đoạn dây nối
+                                if (conn.commonPoint && conn.commonPoint.trim() !== '') {
+                                    const midX = (p1.x + p2.x) / 2;
+                                    const midY = (p1.y + p2.y) / 2;
+
+                                    ctx.font = '600 11px "Segoe UI", system-ui, sans-serif';
+                                    const textMetrics = ctx.measureText(conn.commonPoint);
+                                    const tWidth = textMetrics.width;
+                                    const tHeight = 16;
+
+                                    // Vẽ nền kính mờ cho nhãn điểm chung
+                                    ctx.fillStyle = isActive ? 'rgba(20, 34, 30, 0.92)' : 'rgba(18, 27, 24, 0.85)';
+                                    ctx.strokeStyle = isActive ? 'rgba(233, 196, 106, 0.6)' : 'rgba(220, 205, 186, 0.2)';
+                                    ctx.lineWidth = 1;
+                                    
+                                    const padX = 8;
+                                    const padY = 4;
+                                    ctx.beginPath();
+                                    if (ctx.roundRect) {
+                                        ctx.roundRect(midX - tWidth/2 - padX, midY - tHeight/2 - padY, tWidth + padX*2, tHeight + padY*2, 6);
+                                    } else {
+                                        ctx.rect(midX - tWidth/2 - padX, midY - tHeight/2 - padY, tWidth + padX*2, tHeight + padY*2);
+                                    }
+                                    ctx.fill();
+                                    ctx.stroke();
+
+                                    // Vẽ chữ điểm chung
+                                    ctx.fillStyle = isActive ? '#e9c46a' : '#DCCDBA';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    ctx.fillText(conn.commonPoint, midX, midY);
+                                    ctx.textBaseline = 'alphabetic'; // reset
+                                }
+                            }
+                        }
+                    });
+                }
             });
 
             for (let i = pulses.length - 1; i >= 0; i--) {
@@ -694,9 +1077,9 @@
 
                 ctx.beginPath();
                 ctx.arc(px, py, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#ffb703';
+                ctx.fillStyle = '#DCCDBA';
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ff6b35';
+                ctx.shadowColor = '#74a397';
                 ctx.fill();
                 ctx.shadowBlur = 0;
             }
@@ -706,29 +1089,47 @@
                 if (!p) return;
 
                 const isSelected = (node.id === selectedId);
-                const r = isSelected ? 12 : (p.radius || 8);
+                const isMulti = multiSelectedIds.has(node.id);
+                const r = (isSelected || isMulti) ? 12 : (p.radius || 8);
 
-                const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, isSelected ? 34 : 20);
-                grad.addColorStop(0, isSelected ? 'rgba(255, 183, 3, 0.7)' : 'rgba(255, 107, 53, 0.35)');
+                const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, (isSelected || isMulti) ? 36 : 22);
+                if (isMulti) {
+                    grad.addColorStop(0, 'rgba(233, 196, 106, 0.75)');
+                } else if (isSelected) {
+                    grad.addColorStop(0, 'rgba(220, 205, 186, 0.65)');
+                } else {
+                    grad.addColorStop(0, 'rgba(82, 121, 111, 0.45)');
+                }
                 grad.addColorStop(1, 'transparent');
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, isSelected ? 34 : 20, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, (isSelected || isMulti) ? 36 : 22, 0, Math.PI * 2);
                 ctx.fillStyle = grad;
                 ctx.fill();
 
+                if (isMulti) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, r + 6, 0, Math.PI * 2);
+                    ctx.setLineDash([4, 3]);
+                    ctx.strokeStyle = '#e9c46a';
+                    ctx.lineWidth = 1.8;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-                ctx.fillStyle = isSelected ? '#ffb703' : '#ff2a5f';
+                ctx.fillStyle = isMulti ? '#e9c46a' : (isSelected ? '#DCCDBA' : '#52796F');
                 ctx.fill();
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = isSelected ? '#ffffff' : '#ff2a5f';
+                ctx.strokeStyle = (isSelected || isMulti) ? '#ffffff' : '#DCCDBA';
                 ctx.stroke();
 
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
                 ctx.shadowBlur = 4;
-                ctx.fillStyle = isSelected ? '#ffffff' : '#ffe4dc';
-                ctx.font = isSelected ? '700 14px "Segoe UI", system-ui, sans-serif' : '600 13px "Segoe UI", system-ui, sans-serif';
-                ctx.fillText(node.title, p.x + r + 10, p.y + 4.5);
+                ctx.fillStyle = isMulti ? '#e9c46a' : (isSelected ? '#ffffff' : '#f3eadc');
+                ctx.font = (isSelected || isMulti) ? '700 14px "Segoe UI", system-ui, sans-serif' : '600 13px "Segoe UI", system-ui, sans-serif';
+                ctx.textAlign = 'left'; // reset cho text tiêu đề node
+                ctx.fillText(node.title, p.x + r + 12, p.y + 4.5);
                 ctx.shadowBlur = 0;
             });
 
@@ -736,38 +1137,44 @@
             requestAnimationFrame(animate);
         }
 
-        // --- XỬ LÝ ZOOM & PAN (HỖ TRỢ CHUỘT VÀ CẢM ỨNG 2 NGÓN TAY) ---
-
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const zoomIntensity = 0.1;
             const prevScale = scale;
-            if (e.deltaY < 0) {
-                scale *= (1 + zoomIntensity);
-            } else {
-                scale /= (1 + zoomIntensity);
-            }
-            scale = Math.max(0.4, Math.min(scale, 3.5)); // Giới hạn mức zoom
+            if (e.deltaY < 0) scale *= (1 + zoomIntensity);
+            else scale /= (1 + zoomIntensity);
+            scale = Math.max(0.4, Math.min(scale, 3.5));
 
-            // Zoom hướng vào vị trí con trỏ chuột
             const mouseX = e.clientX;
             const mouseY = e.clientY;
             panX = mouseX - (mouseX - panX) * (scale / prevScale);
             panY = mouseY - (mouseY - panY) * (scale / prevScale);
         }, { passive: false });
 
-        // Xử lý chuột (Desktop)
-        canvas.addEventListener('mousedown', (e) => { handleStart(e.clientX, e.clientY); });
+        canvas.addEventListener('mousedown', (e) => {
+            isCtrlPressedOnDown = (e.ctrlKey || e.metaKey);
+            handleStart(e.clientX, e.clientY);
+        });
         window.addEventListener('mousemove', (e) => { handleMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', () => { handleEnd(); });
 
-        // Xử lý cảm ứng (Mobile: 1 ngón kéo bản đồ / node, 2 ngón pinch-to-zoom)
         canvas.addEventListener('touchstart', (e) => {
+            isCtrlPressedOnDown = false;
             if (e.touches.length === 1) {
                 const touch = e.touches[0];
-                handleStart(touch.clientX, touch.clientY);
+                const hitId = handleStart(touch.clientX, touch.clientY);
                 initialPinchDistance = null;
+
+                if (hitId) {
+                    longPressTimer = setTimeout(() => {
+                        isMobileMultiSelectMode = true;
+                        toggleMultiSelect(hitId);
+                        draggingNodeId = null;
+                        if (navigator.vibrate) navigator.vibrate(40);
+                    }, 420);
+                }
             } else if (e.touches.length === 2) {
+                clearTimeout(longPressTimer);
                 isPanning = false;
                 draggingNodeId = null;
                 initialPinchDistance = Math.hypot(
@@ -778,6 +1185,7 @@
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
+            clearTimeout(longPressTimer);
             if (e.touches.length === 1 && (isPanning || draggingNodeId)) {
                 const touch = e.touches[0];
                 handleMove(touch.clientX, touch.clientY);
@@ -800,6 +1208,7 @@
         }, { passive: true });
 
         window.addEventListener('touchend', (e) => {
+            clearTimeout(longPressTimer);
             if (e.touches.length < 2) initialPinchDistance = null;
             handleEnd();
         });
@@ -809,21 +1218,22 @@
             const mouseX = (clientX - panX) / scale;
             const mouseY = (clientY - panY) / scale;
 
-            let hitNode = false;
+            let hitNodeId = null;
             for (let node of brainData) {
                 const p = nodesPos[node.id];
                 if (p && Math.hypot(p.x - mouseX, p.y - mouseY) < 25) {
                     draggingNodeId = node.id;
-                    hitNode = true;
+                    hitNodeId = node.id;
                     break;
                 }
             }
 
-            if (!hitNode) {
+            if (!hitNodeId) {
                 isPanning = true;
                 startPanX = clientX - panX;
                 startPanY = clientY - panY;
             }
+            return hitNodeId;
         }
 
         function handleMove(clientX, clientY) {
@@ -839,12 +1249,17 @@
 
         function handleEnd() {
             if (draggingNodeId && !isDraggingMoved) {
-                openViewDrawer(draggingNodeId);
+                if (isCtrlPressedOnDown || isMobileMultiSelectMode || multiSelectedIds.size > 0) {
+                    toggleMultiSelect(draggingNodeId);
+                } else {
+                    openViewDrawer(draggingNodeId);
+                }
             }
             draggingNodeId = null;
             isPanning = false;
         }
 
+        updateSoundIcon();
         renderSidebar();
         animate();
     </script>
