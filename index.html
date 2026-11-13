@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v4.3 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v4.4 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -382,7 +382,7 @@
         <button class="btn-submit" id="submitBtnText" onclick="saveNode()">🌿 Kích Hoạt & Lưu Trữ</button>
     </div>
 
-    <div class="hint-bar">💡 Kéo Note vào Hub để hút dính • 2 ngón xoay bản đồ • Giữ 0.4s để Ghép Lục Địa</div>
+    <div class="hint-bar">💡 Kéo Note vào Hub • 2 ngón xoay/zoom bản đồ • Tên luôn đứng thẳng</div>
 
     <script>
         // --- HỆ THỐNG ÂM THANH UI ---
@@ -465,8 +465,8 @@
             }
         }
 
-        // --- CẤU TRÚC DỮ LIỆU (Hỗ trợ đa Hub cha: parentIds thay vì parentId đơn) ---
-        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.3')) || [
+        // --- CẤU TRÚC DỮ LIỆU ---
+        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.4')) || [
             { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', image: '', connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
             { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', image: '', connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
             { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', image: '', connections: [] }
@@ -486,11 +486,10 @@
         let isMobileMultiSelectMode = false;
         let longPressTimer = null;
 
-        // Biến điều khiển Camera: Pan, Zoom, Rotation (Góc xoay bản đồ)
         let panX = 0;
         let panY = 0;
         let scale = 1;
-        let rotationAngle = 0; // Góc xoay hiện tại của Canvas
+        let rotationAngle = 0; // Góc xoay bản đồ
         
         let isPanning = false;
         let startPanX = 0;
@@ -639,7 +638,7 @@
         }
 
         function saveToStorage() {
-            try { localStorage.setItem('forestNexusV4.3', JSON.stringify(brainData)); }
+            try { localStorage.setItem('forestNexusV4.4', JSON.stringify(brainData)); }
             catch (e) { alert('Bộ nhớ trình duyệt đầy do ảnh quá lớn!'); }
         }
 
@@ -726,7 +725,6 @@
             connsList.innerHTML = '';
 
             if (!isHub) {
-                // Nếu là Note, hiển thị các Hub cha mà nó trực thuộc
                 linksSection.style.display = 'block';
                 let htmlContent = `<span class="section-label">📚 CỤM BÀI HỌC CHỦ QUẢN (CHA):</span>`;
                 if (node.parentIds && node.parentIds.length > 0) {
@@ -771,7 +769,6 @@
                     });
                 }
 
-                // Lấy tất cả Take Note có chứa Hub này trong mảng parentIds
                 const childNotes = brainData.filter(n => n.type === 'note' && n.parentIds && n.parentIds.includes(node.id));
                 if (childNotes.length > 0) {
                     htmlContent += `<span class="section-label" style="margin-top:12px;">📝 TAKE NOTE TRỰC THUỘC:</span>`;
@@ -845,7 +842,6 @@
             });
         }
 
-        // Xây dựng danh sách checkbox các Hub cha khi tạo/sửa Note (Hỗ trợ đa Hub cha)
         function buildParentHubsChecklist(currentParentIds = []) {
             const container = document.getElementById('parentHubsChecklistContainer');
             container.innerHTML = '';
@@ -935,7 +931,6 @@
                     hubLinksGroup.style.display = 'none';
                     contentGroup.style.display = 'block';
                     imageGroup.style.display = 'block';
-                    // Nếu đang đứng xem một Hub, tự động tích chọn Hub đó làm cha ban đầu
                     const initialParents = (selectedId && brainData.find(n => n.id === selectedId && n.type !== 'note')) ? [selectedId] : [];
                     buildParentHubsChecklist(initialParents);
                 }
@@ -1144,14 +1139,13 @@
             ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
             ctx.save();
-            // Áp dụng phép biến đổi Camera: Dịch chuyển (Pan), Phóng to/thu nhỏ (Scale), và Xoay không gian (Rotation)
             ctx.translate(panX, panY);
             ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
             ctx.rotate(rotationAngle);
             ctx.scale(scale, scale);
             ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
 
-            // 1. Vẽ dây nối Note đến TẤT CẢ các Hub cha của nó
+            // 1. Vẽ dây nối Note đến các Hub cha
             brainData.forEach(node => {
                 if (node.type === 'note' && node.parentIds && node.parentIds.length > 0) {
                     const p1 = nodesPos[node.id];
@@ -1167,7 +1161,7 @@
                 }
             });
 
-            // Nếu đang kéo một Note con, vẽ đường chỉ dẫn bám theo Hub gần nhất
+            // Đường dẫn hướng khi kéo Note
             if (draggingNodeId) {
                 const draggedNode = brainData.find(n => n.id === draggingNodeId);
                 if (draggedNode && draggedNode.type === 'note') {
@@ -1223,6 +1217,11 @@
                                 const labelText = isMissingPoint ? '⚠️ BÁO ĐỘNG ĐỎ' : conn.commonPoint;
                                 const midX = (p1.x + p2.x) / 2; const midY = (p1.y + p2.y) / 2;
 
+                                // Nhãn điểm chung cũng được giữ thẳng đứng ngang màn hình để dễ đọc
+                                ctx.save();
+                                ctx.translate(midX, midY);
+                                ctx.rotate(-rotationAngle);
+
                                 ctx.font = '600 10px "Segoe UI", system-ui, sans-serif';
                                 const textMetrics = ctx.measureText(labelText);
                                 const tWidth = textMetrics.width; const tHeight = 14;
@@ -1232,14 +1231,14 @@
                                 ctx.lineWidth = 0.8;
                                 
                                 ctx.beginPath();
-                                if (ctx.roundRect) ctx.roundRect(midX - tWidth/2 - 6, midY - tHeight/2 - 3, tWidth + 12, tHeight + 6, 4);
-                                else ctx.rect(midX - tWidth/2 - 6, midY - tHeight/2 - 3, tWidth + 12, tHeight + 6);
+                                if (ctx.roundRect) ctx.roundRect(-tWidth/2 - 6, -tHeight/2 - 3, tWidth + 12, tHeight + 6, 4);
+                                else ctx.rect(-tWidth/2 - 6, -tHeight/2 - 3, tWidth + 12, tHeight + 6);
                                 ctx.fill(); ctx.stroke();
 
                                 ctx.fillStyle = isMissingPoint ? '#ff6b6b' : (isActive ? '#e9c46a' : '#c9bcac');
                                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                                ctx.fillText(labelText, midX, midY);
-                                ctx.textBaseline = 'alphabetic';
+                                ctx.fillText(labelText, 0, 0);
+                                ctx.restore();
                             }
                         }
                     });
@@ -1256,7 +1255,7 @@
                 ctx.fillStyle = '#DCCDBA'; ctx.shadowBlur = 8; ctx.shadowColor = '#618c7f'; ctx.fill(); ctx.shadowBlur = 0;
             }
 
-            // 3.1 Sóng vòng lan tỏa (Snap Ripple)
+            // Sóng vòng lan tỏa
             for (let i = snapAnimations.length - 1; i >= 0; i--) {
                 let anim = snapAnimations[i];
                 anim.radius += 2.2; anim.alpha -= 0.035;
@@ -1266,7 +1265,7 @@
                 ctx.lineWidth = 2.2; ctx.stroke();
             }
 
-            // 4. Vẽ các hạt nhân
+            // 4. Vẽ các hạt nhân & KHÓA GÓC XOAY TÊN CHỮ (Tên luôn thẳng đứng horizontal)
             brainData.forEach(node => {
                 const p = nodesPos[node.id];
                 if (!p) return;
@@ -1296,10 +1295,18 @@
                 ctx.strokeStyle = (isSelected || isMulti) ? '#ffffff' : '#DCCDBA';
                 ctx.stroke();
 
+                // 🌟 TÍNH NĂNG MỚI: Khóa góc xoay để tên Hub và Note luôn nằm thẳng ngang màn hình
+                ctx.save();
+                ctx.translate(p.x + r + 10, p.y + 4);
+                ctx.rotate(-rotationAngle); // Triệt tiêu góc xoay của camera để chữ luôn cố định hướng ngang
+
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6;
                 ctx.fillStyle = isMulti ? '#e9c46a' : (isSelected ? '#ffffff' : (isHub ? '#f3eadc' : '#f3eadc'));
                 ctx.font = isHub ? ((isSelected || isMulti) ? '700 14px "Segoe UI", system-ui, sans-serif' : '700 13px "Segoe UI", system-ui, sans-serif') : '600 11.5px "Segoe UI", system-ui, sans-serif';
-                ctx.textAlign = 'left'; ctx.fillText(node.title, p.x + r + 10, p.y + 4); ctx.shadowBlur = 0;
+                ctx.textAlign = 'left'; 
+                ctx.fillText(node.title, 0, 0); 
+                ctx.shadowBlur = 0;
+                ctx.restore();
             });
 
             ctx.restore();
@@ -1320,7 +1327,6 @@
         window.addEventListener('mousemove', (e) => { handleMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', () => { handleEnd(); });
 
-        // --- HỖ TRỢ CỬ CHỈ CẢM ỨNG 2 NGÓN: ZOOM & XOAY KHÔNG GIAN (PINCH & ROTATE) ---
         canvas.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
                 const touch = e.touches[0];
@@ -1352,11 +1358,9 @@
                 const currentDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 const currentAngle = Math.atan2(e.touches[1].clientY - e.touches[0].clientY, e.touches[1].clientX - e.touches[0].clientX);
                 
-                // Cập nhật độ phóng thu (Zoom)
                 const factor = currentDistance / initialPinchDistance;
                 scale = Math.max(0.4, Math.min(baseScale * factor, 3.5));
 
-                // Cập nhật góc xoay bản đồ (Rotation theo 2 ngón tay)
                 const angleDelta = currentAngle - initialPinchAngle;
                 rotationAngle = baseRotation + angleDelta;
             }
@@ -1369,7 +1373,6 @@
         });
 
         function getCanvasPoint(clientX, clientY) {
-            // Chuyển đổi tọa độ màn hình sang tọa độ thực tế trong Canvas (tính cả Pan, Zoom và Rotation)
             const cx = window.innerWidth / 2; const cy = window.innerHeight / 2;
             const x1 = clientX - panX - cx; const y1 = clientY - panY - cy;
             const cos = Math.cos(-rotationAngle); const sin = Math.sin(-rotationAngle);
