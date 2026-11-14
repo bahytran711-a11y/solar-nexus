@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v4.9 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v5.0 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -59,13 +59,13 @@
         .header-left-group { display: flex; align-items: center; gap: 8px; overflow: hidden; }
         .header-right-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-        .sidebar-toggle-btn, .sound-toggle-btn {
+        .sidebar-toggle-btn, .sound-toggle-btn, .backup-btn {
             width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--border);
             background: rgba(64, 99, 89, 0.3); color: var(--sand-beige);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.2s; font-size: 0.9em; flex-shrink: 0;
         }
-        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover { background: var(--forest-green); color: var(--sand-bright); }
+        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover, .backup-btn:hover { background: var(--forest-green); color: var(--sand-bright); }
 
         .logo-text {
             font-size: 1em; font-weight: 800; letter-spacing: 0.6px;
@@ -88,7 +88,7 @@
         .search-box::placeholder { color: var(--text-sub); }
         .search-box:focus { outline: none; border-color: var(--sand-beige); }
 
-        .node-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; max-height: 45vh; }
+        .node-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; max-height: 42vh; }
         .node-item {
             padding: 9px 11px; border-radius: 10px; background: rgba(220, 205, 186, 0.03);
             border: 1px solid transparent; cursor: pointer; transition: 0.2s;
@@ -105,6 +105,18 @@
             box-shadow: 0 0 12px rgba(233, 196, 106, 0.25);
         }
         .node-item-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sand-bright); }
+
+        /* 🌟 NÂNG CẤP V5.0: Khu vực nút Backup / Restore nhanh dưới Sidebar */
+        .backup-bar {
+            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+            display: flex; gap: 6px;
+        }
+        .btn-backup-action {
+            flex: 1; padding: 7px; border-radius: 8px; border: 1px solid var(--border);
+            background: rgba(64, 99, 89, 0.2); color: var(--sand-beige); font-size: 0.75em; font-weight: 600;
+            cursor: pointer; transition: 0.2s; text-align: center;
+        }
+        .btn-backup-action:hover { background: var(--forest-green); color: var(--sand-bright); border-color: var(--sand-beige); }
 
         .multi-select-bar {
             position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%) translateY(120px);
@@ -178,7 +190,6 @@
         #viewTitle { font-size: 1.4em; font-weight: 800; color: var(--sand-beige); margin-bottom: 10px; line-height: 1.35; }
         #viewContent { font-size: 0.98em; color: var(--sand-bright); line-height: 1.7; white-space: pre-line; user-select: text; min-height: 80px; background: rgba(10, 18, 15, 0.45); padding: 16px; border-radius: 14px; border: 1px solid rgba(220, 205, 186, 0.1); }
         
-        /* 🌟 NÂNG CẤP V4.9: Thư viện hiển thị nhiều ảnh dạng Grid trong Xem chi tiết */
         .images-grid-view {
             margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
         }
@@ -232,7 +243,6 @@
         }
         .img-dropzone:hover { background: rgba(64, 99, 89, 0.25); color: var(--sand-bright); border-color: var(--sand-beige); }
 
-        /* 🌟 NÂNG CẤP V4.9: Danh sách preview nhiều ảnh khi tạo/sửa */
         .images-preview-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 10px;
         }
@@ -290,6 +300,13 @@
         </div>
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm kiến thức..." oninput="renderSidebar()">
         <ul class="node-list" id="nodeList"></ul>
+
+        <!-- 🌟 Thanh Backup / Restore dữ liệu trực tiếp -->
+        <div class="backup-bar">
+            <button class="btn-backup-action" onclick="exportBackupJSON()" title="Tải file lưu trữ đề phòng mất dữ liệu">📤 Sao Lưu</button>
+            <button class="btn-backup-action" onclick="document.getElementById('importFile').click()" title="Khôi phục dữ liệu từ file JSON cũ">📥 Khôi Phục</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackupJSON(event)">
+        </div>
     </div>
 
     <!-- Nút mở lại sidebar -->
@@ -339,7 +356,7 @@
         </div>
     </div>
 
-    <!-- Ngăn xem chi tiết (Drawer - Bự trùm full màn hình) -->
+    <!-- Ngăn xem chi tiết -->
     <div class="drawer hidden" id="viewDrawer">
         <div class="drawer-header">
             <span class="badge" id="viewBadgeType">✨ Chi tiết dữ liệu</span>
@@ -348,7 +365,6 @@
         <h2 id="viewTitle">Tiêu đề</h2>
         <div id="viewContent">Nội dung...</div>
         
-        <!-- Thư viện hình ảnh hiển thị trong chế độ xem -->
         <div id="viewImagesSection" style="display:none;">
             <span class="section-label" style="margin-top:16px;">🖼️ HÌNH ẢNH MINH HỌA ĐÍNH KÈM:</span>
             <div class="images-grid-view" id="viewImagesGrid"></div>
@@ -397,7 +413,6 @@
             <textarea id="newContent" placeholder="Nhập ghi chú chi tiết..."></textarea>
         </div>
 
-        <!-- 🌟 Bộ chọn nhiều hình ảnh -->
         <div class="form-group" id="imageGroup">
             <label>Hình ảnh minh họa (Thêm thoải mái nhiều ảnh)</label>
             <div class="img-dropzone" onclick="document.getElementById('fileInput').click()">
@@ -493,8 +508,24 @@
             }
         }
 
-        // --- CẤU TRÚC DỮ LIỆU ---
-        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.9')) || [
+        // --- 🌟 NÂNG CẤP V5.0: KHÓA LƯU TRỮ VĨNH VIỄN (Không bao giờ mất dữ liệu khi update) ---
+        const STORAGE_KEY = 'forestNexus_UserBrain_v1';
+
+        // Tự động gom dữ liệu từ các bản cũ (v4.6, v4.7, v4.8, v4.9) sang khoá vĩnh viễn nếu có
+        function migrateOldData() {
+            if (localStorage.getItem(STORAGE_KEY)) return;
+            for (let i = 4.6; i <= 4.9; i += 0.1) {
+                const oldKey = `forestNexusV${i.toFixed(1)}`;
+                const oldData = localStorage.getItem(oldKey);
+                if (oldData) {
+                    localStorage.setItem(STORAGE_KEY, oldData);
+                    break;
+                }
+            }
+        }
+        migrateOldData();
+
+        let brainData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
             { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', images: [], connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
             { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', images: [], connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
             { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', images: [], connections: [] }
@@ -503,7 +534,7 @@
         let selectedId = null;
         let editingNodeId = null;
         let creatingType = 'hub';
-        let currentImagesList = []; // Mảng chứa nhiều hình ảnh dạng Base64
+        let currentImagesList = [];
         let nodesPos = {};
         let pulses = [];
         let typingInterval = null;
@@ -527,6 +558,45 @@
         let initialPinchAngle = null;
         let baseScale = 1;
         let baseRotation = 0;
+
+        // --- 📥 TÍNH NĂNG SAO LƯU & KHÔI PHỤC DỮ LIỆU JSON ---
+        function exportBackupJSON() {
+            playSound('click');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(brainData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ForestNexus_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        if (confirm(`Đã tìm thấy ${imported.length} mục kiến thức trong file sao lưu. Bạn có muốn ghi đè để khôi phục không?`)) {
+                            brainData = imported;
+                            saveToStorage();
+                            initPhysics();
+                            renderSidebar();
+                            closeAllDrawers();
+                            alert('🎉 Khôi phục dữ liệu thành công!');
+                        }
+                    } else {
+                        alert('File JSON không hợp lệ!');
+                    }
+                } catch (err) {
+                    alert('Lỗi đọc file JSON!');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -645,7 +715,6 @@
             const cx = window.innerWidth / 2; const cy = window.innerHeight / 2;
             brainData.forEach((node, i) => {
                 if (!nodesPos[node.id]) {
-                    // Chuyển đổi dữ liệu cũ có thuộc tính 'image' đơn lẻ sang mảng 'images' để tương thích ngược
                     if (node.image && (!node.images || node.images.length === 0)) {
                         node.images = [node.image];
                         delete node.image;
@@ -673,7 +742,7 @@
         }
 
         function saveToStorage() {
-            try { localStorage.setItem('forestNexusV4.9', JSON.stringify(brainData)); }
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(brainData)); }
             catch (e) { alert('Bộ nhớ trình duyệt đầy do số lượng ảnh quá lớn!'); }
         }
 
@@ -751,7 +820,6 @@
             document.getElementById('viewTitle').innerText = node.title;
             typeWriterEffect(node.content || '(Không có mô tả văn bản)');
 
-            // Lấy danh sách hình ảnh (hỗ trợ cả dữ liệu cũ 'image' đơn và mảng mới 'images')
             let imgArr = [];
             if (node.images && Array.isArray(node.images)) imgArr = node.images;
             else if (node.image) imgArr = [node.image];
@@ -976,7 +1044,6 @@
                     buildParentHubsChecklist(node.parentIds || []);
                 }
 
-                // Load danh sách ảnh cũ
                 if (node.images && Array.isArray(node.images)) {
                     currentImagesList = [...node.images];
                 } else if (node.image) {
@@ -1084,7 +1151,7 @@
             for (let file of files) {
                 processImageFile(file);
             }
-            event.target.value = ''; // Reset input để cho phép chọn lại cùng một file nếu cần
+            event.target.value = '';
         }
 
         window.addEventListener('paste', (e) => {
