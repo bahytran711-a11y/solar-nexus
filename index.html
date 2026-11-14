@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v5.0 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v5.1 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -59,13 +59,13 @@
         .header-left-group { display: flex; align-items: center; gap: 8px; overflow: hidden; }
         .header-right-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-        .sidebar-toggle-btn, .sound-toggle-btn, .backup-btn {
+        .sidebar-toggle-btn, .sound-toggle-btn {
             width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--border);
             background: rgba(64, 99, 89, 0.3); color: var(--sand-beige);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.2s; font-size: 0.9em; flex-shrink: 0;
         }
-        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover, .backup-btn:hover { background: var(--forest-green); color: var(--sand-bright); }
+        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover { background: var(--forest-green); color: var(--sand-bright); }
 
         .logo-text {
             font-size: 1em; font-weight: 800; letter-spacing: 0.6px;
@@ -106,7 +106,6 @@
         }
         .node-item-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sand-bright); }
 
-        /* 🌟 NÂNG CẤP V5.0: Khu vực nút Backup / Restore nhanh dưới Sidebar */
         .backup-bar {
             margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
             display: flex; gap: 6px;
@@ -197,8 +196,18 @@
             border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: rgba(10, 18, 15, 0.6);
             position: relative; aspect-ratio: 16/10;
         }
+        /* 🌟 NÂNG CẤP V5.1: Xử lý click ảnh an toàn mở modal phóng to, không bị nhảy tab trắng */
         .image-view-card img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform 0.2s; }
         .image-view-card img:hover { transform: scale(1.04); }
+
+        /* Modal phóng to ảnh trực tiếp trong app */
+        .image-modal-overlay {
+            position: fixed; inset: 0; background: rgba(5, 10, 8, 0.92); backdrop-filter: blur(10px);
+            z-index: 300; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.25s; padding: 16px;
+        }
+        .image-modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .image-modal-content { max-width: 95vw; max-height: 95vh; border-radius: 12px; object-fit: contain; border: 1px solid var(--border); }
 
         .links-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
         .section-label { font-size: 0.78em; color: var(--text-sub); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; display: block; }
@@ -301,7 +310,6 @@
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm kiến thức..." oninput="renderSidebar()">
         <ul class="node-list" id="nodeList"></ul>
 
-        <!-- 🌟 Thanh Backup / Restore dữ liệu trực tiếp -->
         <div class="backup-bar">
             <button class="btn-backup-action" onclick="exportBackupJSON()" title="Tải file lưu trữ đề phòng mất dữ liệu">📤 Sao Lưu</button>
             <button class="btn-backup-action" onclick="document.getElementById('importFile').click()" title="Khôi phục dữ liệu từ file JSON cũ">📥 Khôi Phục</button>
@@ -309,7 +317,6 @@
         </div>
     </div>
 
-    <!-- Nút mở lại sidebar -->
     <button class="sidebar-open-btn" onclick="toggleSidebar()" title="Mở bảng điều khiển">☰</button>
 
     <!-- Modal lựa chọn loại tạo mới -->
@@ -381,6 +388,11 @@
         </div>
     </div>
 
+    <!-- Modal phóng to ảnh an toàn (Không bị nhảy tab trắng) -->
+    <div class="image-modal-overlay" id="imageModalOverlay" onclick="closeImageModal()">
+        <img class="image-modal-content" id="modalZoomedImg" src="">
+    </div>
+
     <!-- Ngăn tạo mới / chỉnh sửa Hub hoặc Note -->
     <div class="drawer hidden" id="createDrawer">
         <div class="drawer-header">
@@ -428,7 +440,6 @@
     <div class="hint-bar">💡 Kéo Note vào Hub • 2 ngón xoay/zoom bản đồ • Tên luôn đứng thẳng</div>
 
     <script>
-        // --- HỆ THỐNG ÂM THANH GIAO DIỆN UI ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let soundMode = localStorage.getItem('forestSoundMode') || 'dew';
 
@@ -508,13 +519,11 @@
             }
         }
 
-        // --- 🌟 NÂNG CẤP V5.0: KHÓA LƯU TRỮ VĨNH VIỄN (Không bao giờ mất dữ liệu khi update) ---
         const STORAGE_KEY = 'forestNexus_UserBrain_v1';
 
-        // Tự động gom dữ liệu từ các bản cũ (v4.6, v4.7, v4.8, v4.9) sang khoá vĩnh viễn nếu có
         function migrateOldData() {
             if (localStorage.getItem(STORAGE_KEY)) return;
-            for (let i = 4.6; i <= 4.9; i += 0.1) {
+            for (let i = 4.6; i <= 5.0; i += 0.1) {
                 const oldKey = `forestNexusV${i.toFixed(1)}`;
                 const oldData = localStorage.getItem(oldKey);
                 if (oldData) {
@@ -559,7 +568,6 @@
         let baseScale = 1;
         let baseRotation = 0;
 
-        // --- 📥 TÍNH NĂNG SAO LƯU & KHÔI PHỤC DỮ LIỆU JSON ---
         function exportBackupJSON() {
             playSound('click');
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(brainData, null, 2));
@@ -602,6 +610,7 @@
             if (e.key === 'Escape') {
                 if (document.getElementById('mergeModalOverlay').classList.contains('open')) closeMergeModal();
                 else if (document.getElementById('choiceModalOverlay').classList.contains('open')) closeChoiceModal();
+                else if (document.getElementById('imageModalOverlay').classList.contains('open')) closeImageModal();
                 else if (multiSelectedIds.size > 0 || isMobileMultiSelectMode) clearMultiSelect();
             }
         });
@@ -806,6 +815,19 @@
             }, 10);
         }
 
+        // 🌟 Hàm mở modal phóng to ảnh trực tiếp an toàn
+        function openImageModal(imgSrc) {
+            playSound('click');
+            const modal = document.getElementById('imageModalOverlay');
+            const modalImg = document.getElementById('modalZoomedImg');
+            modalImg.src = imgSrc;
+            modal.classList.add('open');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModalOverlay').classList.remove('open');
+        }
+
         function openViewDrawer(id) {
             selectedId = id;
             const node = brainData.find(n => n.id === id);
@@ -833,7 +855,9 @@
                 imgArr.forEach(imgSrc => {
                     const card = document.createElement('div');
                     card.className = 'image-view-card';
-                    card.innerHTML = `<img src="${imgSrc}" alt="Ảnh minh họa" onclick="window.open(this.src)">`;
+                    // Sửa lỗi ở đây: gọi openImageModal thay vì window.open(this.src)
+                    const safeSrc = imgSrc.replace(/"/g, '&quot;');
+                    card.innerHTML = `<img src="${safeSrc}" alt="Ảnh minh họa" onclick="openImageModal('${safeSrc}')">`;
                     imagesGrid.appendChild(card);
                 });
             } else {
