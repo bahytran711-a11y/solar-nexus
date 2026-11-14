@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v5.1 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v5.2 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -88,7 +88,7 @@
         .search-box::placeholder { color: var(--text-sub); }
         .search-box:focus { outline: none; border-color: var(--sand-beige); }
 
-        .node-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; max-height: 42vh; }
+        .node-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; max-height: 48vh; }
         .node-item {
             padding: 9px 11px; border-radius: 10px; background: rgba(220, 205, 186, 0.03);
             border: 1px solid transparent; cursor: pointer; transition: 0.2s;
@@ -105,17 +105,6 @@
             box-shadow: 0 0 12px rgba(233, 196, 106, 0.25);
         }
         .node-item-title { font-size: 0.85em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--sand-bright); }
-
-        .backup-bar {
-            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
-            display: flex; gap: 6px;
-        }
-        .btn-backup-action {
-            flex: 1; padding: 7px; border-radius: 8px; border: 1px solid var(--border);
-            background: rgba(64, 99, 89, 0.2); color: var(--sand-beige); font-size: 0.75em; font-weight: 600;
-            cursor: pointer; transition: 0.2s; text-align: center;
-        }
-        .btn-backup-action:hover { background: var(--forest-green); color: var(--sand-bright); border-color: var(--sand-beige); }
 
         .multi-select-bar {
             position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%) translateY(120px);
@@ -196,11 +185,10 @@
             border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: rgba(10, 18, 15, 0.6);
             position: relative; aspect-ratio: 16/10;
         }
-        /* 🌟 NÂNG CẤP V5.1: Xử lý click ảnh an toàn mở modal phóng to, không bị nhảy tab trắng */
         .image-view-card img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform 0.2s; }
         .image-view-card img:hover { transform: scale(1.04); }
 
-        /* Modal phóng to ảnh trực tiếp trong app */
+        /* Modal phóng to ảnh trực tiếp không bị nhảy trang trắng */
         .image-modal-overlay {
             position: fixed; inset: 0; background: rgba(5, 10, 8, 0.92); backdrop-filter: blur(10px);
             z-index: 300; display: flex; align-items: center; justify-content: center;
@@ -290,7 +278,7 @@
     <div class="ambient-glow"></div>
     <canvas id="neuralCanvas"></canvas>
 
-    <!-- Khung Sidebar chính -->
+    <!-- Khung Sidebar chính (Đã gỡ bỏ hoàn toàn nút sao lưu/khôi phục) -->
     <div class="sidebar" id="sidebarPanel">
         <div class="sidebar-header">
             <div class="header-left-group">
@@ -309,14 +297,9 @@
         </div>
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Tìm kiếm kiến thức..." oninput="renderSidebar()">
         <ul class="node-list" id="nodeList"></ul>
-
-        <div class="backup-bar">
-            <button class="btn-backup-action" onclick="exportBackupJSON()" title="Tải file lưu trữ đề phòng mất dữ liệu">📤 Sao Lưu</button>
-            <button class="btn-backup-action" onclick="document.getElementById('importFile').click()" title="Khôi phục dữ liệu từ file JSON cũ">📥 Khôi Phục</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackupJSON(event)">
-        </div>
     </div>
 
+    <!-- Nút mở lại sidebar -->
     <button class="sidebar-open-btn" onclick="toggleSidebar()" title="Mở bảng điều khiển">☰</button>
 
     <!-- Modal lựa chọn loại tạo mới -->
@@ -388,7 +371,7 @@
         </div>
     </div>
 
-    <!-- Modal phóng to ảnh an toàn (Không bị nhảy tab trắng) -->
+    <!-- Modal phóng to ảnh an toàn trực tiếp trong ứng dụng -->
     <div class="image-modal-overlay" id="imageModalOverlay" onclick="closeImageModal()">
         <img class="image-modal-content" id="modalZoomedImg" src="">
     </div>
@@ -523,7 +506,7 @@
 
         function migrateOldData() {
             if (localStorage.getItem(STORAGE_KEY)) return;
-            for (let i = 4.6; i <= 5.0; i += 0.1) {
+            for (let i = 4.6; i <= 5.1; i += 0.1) {
                 const oldKey = `forestNexusV${i.toFixed(1)}`;
                 const oldData = localStorage.getItem(oldKey);
                 if (oldData) {
@@ -567,44 +550,6 @@
         let initialPinchAngle = null;
         let baseScale = 1;
         let baseRotation = 0;
-
-        function exportBackupJSON() {
-            playSound('click');
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(brainData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `ForestNexus_Backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importBackupJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        if (confirm(`Đã tìm thấy ${imported.length} mục kiến thức trong file sao lưu. Bạn có muốn ghi đè để khôi phục không?`)) {
-                            brainData = imported;
-                            saveToStorage();
-                            initPhysics();
-                            renderSidebar();
-                            closeAllDrawers();
-                            alert('🎉 Khôi phục dữ liệu thành công!');
-                        }
-                    } else {
-                        alert('File JSON không hợp lệ!');
-                    }
-                } catch (err) {
-                    alert('Lỗi đọc file JSON!');
-                }
-                event.target.value = '';
-            };
-            reader.readAsText(file);
-        }
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -815,7 +760,6 @@
             }, 10);
         }
 
-        // 🌟 Hàm mở modal phóng to ảnh trực tiếp an toàn
         function openImageModal(imgSrc) {
             playSound('click');
             const modal = document.getElementById('imageModalOverlay');
@@ -855,7 +799,6 @@
                 imgArr.forEach(imgSrc => {
                     const card = document.createElement('div');
                     card.className = 'image-view-card';
-                    // Sửa lỗi ở đây: gọi openImageModal thay vì window.open(this.src)
                     const safeSrc = imgSrc.replace(/"/g, '&quot;');
                     card.innerHTML = `<img src="${safeSrc}" alt="Ảnh minh họa" onclick="openImageModal('${safeSrc}')">`;
                     imagesGrid.appendChild(card);
@@ -1531,8 +1474,8 @@
                 const factor = currentDistance / initialPinchDistance;
                 scale = Math.max(0.4, Math.min(baseScale * factor, 3.5));
 
-                const angleDelta = currentAngle - initialPinchAngle;
-                rotationAngle = baseRotation + angleDelta;
+                const angleDiv = currentAngle - initialPinchAngle;
+                rotationAngle = baseRotation + angleDiv;
             }
         }, { passive: true });
 
@@ -1577,7 +1520,7 @@
         }
 
         function handleEnd() {
-            if (draggingNodeId) {
+            if, (draggingNodeId) {
                 if (isDraggingMoved) {
                     const draggedNode = brainData.find(n => n.id === draggingNodeId);
                     if (draggedNode && draggedNode.type === 'note') {
