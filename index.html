@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v4.8 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v4.9 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -157,7 +157,7 @@
         .merge-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; max-height: 100px; overflow-y: auto; }
         .merge-tag { font-size: 0.75em; padding: 3px 9px; border-radius: 12px; background: rgba(64, 99, 89, 0.4); border: 1px solid var(--forest-light); color: var(--sand-bright); }
 
-        /* Khung Drawer bự gần trùm full màn hình (Giữ nguyên kích thước rộng rãi theo ý bro) */
+        /* Khung Drawer bự trùm full màn hình */
         .drawer {
             position: fixed; top: 3vh; left: 3vw; right: 3vw; bottom: 3vh;
             width: 94vw !important; max-width: 94vw !important;
@@ -178,8 +178,16 @@
         #viewTitle { font-size: 1.4em; font-weight: 800; color: var(--sand-beige); margin-bottom: 10px; line-height: 1.35; }
         #viewContent { font-size: 0.98em; color: var(--sand-bright); line-height: 1.7; white-space: pre-line; user-select: text; min-height: 80px; background: rgba(10, 18, 15, 0.45); padding: 16px; border-radius: 14px; border: 1px solid rgba(220, 205, 186, 0.1); }
         
-        #viewImageBox { margin-top: 16px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); display: none; }
-        #viewImage { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: contain; cursor: zoom-in; }
+        /* 🌟 NÂNG CẤP V4.9: Thư viện hiển thị nhiều ảnh dạng Grid trong Xem chi tiết */
+        .images-grid-view {
+            margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+        }
+        .image-view-card {
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: rgba(10, 18, 15, 0.6);
+            position: relative; aspect-ratio: 16/10;
+        }
+        .image-view-card img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform 0.2s; }
+        .image-view-card img:hover { transform: scale(1.04); }
 
         .links-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
         .section-label { font-size: 0.78em; color: var(--text-sub); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; display: block; }
@@ -210,20 +218,34 @@
             width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
             background: rgba(10, 18, 15, 0.85); color: var(--sand-bright); font-size: 0.95em;
         }
-        textarea { height: 240px; resize: vertical; }
+        textarea { height: 220px; resize: vertical; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sand-beige); }
 
-        .link-builder-container, .notes-checklist-container, .parent-hubs-checklist { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+        .link-builder-container, .notes-checklist-container, .parent-hubs-checklist { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
         .link-row { padding: 10px 12px; border-radius: 12px; background: rgba(220, 205, 186, 0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
         .link-row-top { display: flex; align-items: center; justify-content: space-between; font-size: 0.88em; color: var(--sand-bright); font-weight: 600; }
 
         .img-dropzone {
-            border: 1.5px dashed var(--forest-light); border-radius: 12px; padding: 18px;
+            border: 1.5px dashed var(--forest-light); border-radius: 12px; padding: 16px;
             text-align: center; font-size: 0.88em; color: var(--text-sub); cursor: pointer;
             background: rgba(64, 99, 89, 0.12); transition: 0.2s;
         }
         .img-dropzone:hover { background: rgba(64, 99, 89, 0.25); color: var(--sand-bright); border-color: var(--sand-beige); }
-        #previewImg { max-width: 100%; max-height: 180px; border-radius: 10px; margin-top: 10px; display: none; }
+
+        /* 🌟 NÂNG CẤP V4.9: Danh sách preview nhiều ảnh khi tạo/sửa */
+        .images-preview-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 10px;
+        }
+        .preview-thumb-card {
+            position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 16/10; background: #070d0b;
+        }
+        .preview-thumb-card img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-thumb-remove {
+            position: absolute; top: 4px; right: 4px; background: rgba(217, 83, 79, 0.85); color: #fff; border: none;
+            border-radius: 50%; width: 22px; height: 22px; font-size: 0.75em; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .preview-thumb-remove:hover { background: var(--danger); transform: scale(1.1); }
 
         .btn-submit {
             width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 1em;
@@ -326,8 +348,10 @@
         <h2 id="viewTitle">Tiêu đề</h2>
         <div id="viewContent">Nội dung...</div>
         
-        <div id="viewImageBox">
-            <img id="viewImage" src="" alt="Hình ảnh đính kèm" onclick="window.open(this.src)">
+        <!-- Thư viện hình ảnh hiển thị trong chế độ xem -->
+        <div id="viewImagesSection" style="display:none;">
+            <span class="section-label" style="margin-top:16px;">🖼️ HÌNH ẢNH MINH HỌA ĐÍNH KÈM:</span>
+            <div class="images-grid-view" id="viewImagesGrid"></div>
         </div>
 
         <div class="links-section" id="viewLinksSection">
@@ -341,7 +365,7 @@
         </div>
     </div>
 
-    <!-- Ngăn tạo mới / chỉnh sửa Hub hoặc Note (Bự trùm full màn hình) -->
+    <!-- Ngăn tạo mới / chỉnh sửa Hub hoặc Note -->
     <div class="drawer hidden" id="createDrawer">
         <div class="drawer-header">
             <span class="badge" id="drawerTitleBadge">🌱 Tạo Mới</span>
@@ -373,13 +397,14 @@
             <textarea id="newContent" placeholder="Nhập ghi chú chi tiết..."></textarea>
         </div>
 
+        <!-- 🌟 Bộ chọn nhiều hình ảnh -->
         <div class="form-group" id="imageGroup">
-            <label>Hình ảnh minh họa (Tùy chọn)</label>
+            <label>Hình ảnh minh họa (Thêm thoải mái nhiều ảnh)</label>
             <div class="img-dropzone" onclick="document.getElementById('fileInput').click()">
-                📸 Nhấp chọn ảnh hoặc dán từ clipboard
-                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-                <img id="previewImg" src="">
+                📸 Nhấp chọn nhiều ảnh hoặc dán từ clipboard (Paste)
+                <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
             </div>
+            <div class="images-preview-grid" id="imagesPreviewGrid"></div>
         </div>
 
         <button class="btn-submit" id="submitBtnText" onclick="saveNode()">🌿 Kích Hoạt & Lưu Trữ</button>
@@ -469,16 +494,16 @@
         }
 
         // --- CẤU TRÚC DỮ LIỆU ---
-        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.8')) || [
-            { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', image: '', connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
-            { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', image: '', connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
-            { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', image: '', connections: [] }
+        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.9')) || [
+            { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', images: [], connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
+            { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', images: [], connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
+            { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', images: [], connections: [] }
         ];
 
         let selectedId = null;
         let editingNodeId = null;
         let creatingType = 'hub';
-        let currentBase64Image = '';
+        let currentImagesList = []; // Mảng chứa nhiều hình ảnh dạng Base64
         let nodesPos = {};
         let pulses = [];
         let typingInterval = null;
@@ -620,6 +645,13 @@
             const cx = window.innerWidth / 2; const cy = window.innerHeight / 2;
             brainData.forEach((node, i) => {
                 if (!nodesPos[node.id]) {
+                    // Chuyển đổi dữ liệu cũ có thuộc tính 'image' đơn lẻ sang mảng 'images' để tương thích ngược
+                    if (node.image && (!node.images || node.images.length === 0)) {
+                        node.images = [node.image];
+                        delete node.image;
+                    }
+                    if (!node.images) node.images = [];
+
                     if (node.type === 'note' && node.parentIds && node.parentIds.length > 0) {
                         const parentPos = nodesPos[node.parentIds[0]] || { x: cx, y: cy };
                         nodesPos[node.id] = {
@@ -641,8 +673,8 @@
         }
 
         function saveToStorage() {
-            try { localStorage.setItem('forestNexusV4.8', JSON.stringify(brainData)); }
-            catch (e) { alert('Bộ nhớ trình duyệt đầy do ảnh quá lớn!'); }
+            try { localStorage.setItem('forestNexusV4.9', JSON.stringify(brainData)); }
+            catch (e) { alert('Bộ nhớ trình duyệt đầy do số lượng ảnh quá lớn!'); }
         }
 
         function renderSidebar() {
@@ -659,7 +691,8 @@
                     const li = document.createElement('li');
                     li.className = `node-item ${node.id === selectedId ? 'active' : ''} ${isMulti ? 'multi-selected' : ''}`;
                     
-                    let iconStr = isHub ? (node.image ? '🖼️' : '📚') : '📝';
+                    const hasImgs = (node.images && node.images.length > 0) || node.image;
+                    let iconStr = isHub ? (hasImgs ? '🖼️' : '📚') : '📝';
                     if (isMulti) iconStr = '✅';
 
                     li.innerHTML = `
@@ -718,10 +751,26 @@
             document.getElementById('viewTitle').innerText = node.title;
             typeWriterEffect(node.content || '(Không có mô tả văn bản)');
 
-            const imgBox = document.getElementById('viewImageBox');
-            const imgEl = document.getElementById('viewImage');
-            if (node.image) { imgEl.src = node.image; imgBox.style.display = 'block'; }
-            else { imgBox.style.display = 'none'; }
+            // Lấy danh sách hình ảnh (hỗ trợ cả dữ liệu cũ 'image' đơn và mảng mới 'images')
+            let imgArr = [];
+            if (node.images && Array.isArray(node.images)) imgArr = node.images;
+            else if (node.image) imgArr = [node.image];
+
+            const imagesSection = document.getElementById('viewImagesSection');
+            const imagesGrid = document.getElementById('viewImagesGrid');
+            imagesGrid.innerHTML = '';
+
+            if (imgArr.length > 0) {
+                imagesSection.style.display = 'block';
+                imgArr.forEach(imgSrc => {
+                    const card = document.createElement('div');
+                    card.className = 'image-view-card';
+                    card.innerHTML = `<img src="${imgSrc}" alt="Ảnh minh họa" onclick="window.open(this.src)">`;
+                    imagesGrid.appendChild(card);
+                });
+            } else {
+                imagesSection.style.display = 'none';
+            }
 
             const linksSection = document.getElementById('viewLinksSection');
             const connsList = document.getElementById('viewConnectionsList');
@@ -866,6 +915,26 @@
             });
         }
 
+        function renderImagesPreview() {
+            const grid = document.getElementById('imagesPreviewGrid');
+            grid.innerHTML = '';
+            currentImagesList.forEach((imgSrc, index) => {
+                const card = document.createElement('div');
+                card.className = 'preview-thumb-card';
+                card.innerHTML = `
+                    <img src="${imgSrc}" alt="Thumb">
+                    <button class="preview-thumb-remove" onclick="removeImageAt(${index})" title="Xóa ảnh này">✕</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function removeImageAt(index) {
+            playSound('click');
+            currentImagesList.splice(index, 1);
+            renderImagesPreview();
+        }
+
         function openCreateDrawer(editId = null) {
             playSound('click');
             selectedId = null; renderSidebar();
@@ -907,10 +976,15 @@
                     buildParentHubsChecklist(node.parentIds || []);
                 }
 
-                currentBase64Image = node.image || '';
-                const preview = document.getElementById('previewImg');
-                if (currentBase64Image) { preview.src = currentBase64Image; preview.style.display = 'block'; }
-                else { preview.style.display = 'none'; }
+                // Load danh sách ảnh cũ
+                if (node.images && Array.isArray(node.images)) {
+                    currentImagesList = [...node.images];
+                } else if (node.image) {
+                    currentImagesList = [node.image];
+                } else {
+                    currentImagesList = [];
+                }
+                renderImagesPreview();
                 document.getElementById('submitBtnText').innerText = '💾 Lưu Thay Đổi';
             } else {
                 editingNodeId = null;
@@ -938,8 +1012,8 @@
                     buildParentHubsChecklist(initialParents);
                 }
 
-                currentBase64Image = '';
-                document.getElementById('previewImg').style.display = 'none';
+                currentImagesList = [];
+                renderImagesPreview();
                 document.getElementById('submitBtnText').innerText = '🌿 Kích Hoạt & Lưu Trữ';
             }
         }
@@ -996,21 +1070,31 @@
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
-                    const preview = document.getElementById('previewImg');
-                    preview.src = currentBase64Image; preview.style.display = 'block';
+                    const base64Str = canvas.toDataURL('image/jpeg', 0.75);
+                    currentImagesList.push(base64Str);
+                    renderImagesPreview();
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function handleImageUpload(event) { processImageFile(event.target.files[0]); }
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                processImageFile(file);
+            }
+            event.target.value = ''; // Reset input để cho phép chọn lại cùng một file nếu cần
+        }
 
         window.addEventListener('paste', (e) => {
             if (document.getElementById('createDrawer').classList.contains('hidden')) return;
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let item of items) { if (item.type.indexOf('image') === 0) processImageFile(item.getAsFile()); }
+            for (let item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    processImageFile(item.getAsFile());
+                }
+            }
         });
 
         function saveNode() {
@@ -1046,7 +1130,7 @@
                 if (editingNodeId) {
                     const node = brainData.find(n => n.id === editingNodeId);
                     if (node) {
-                        node.title = title; node.content = content; node.image = currentBase64Image; node.type = creatingType;
+                        node.title = title; node.content = content; node.images = [...currentImagesList]; delete node.image; node.type = creatingType;
                         if (creatingType === 'hub') {
                             node.connections = connections; delete node.parentIds;
                             brainData.forEach(n => {
@@ -1067,7 +1151,7 @@
                 } else {
                     const newId = Date.now();
                     const newNode = {
-                        id: newId, type: creatingType, title: title, content: content, image: currentBase64Image,
+                        id: newId, type: creatingType, title: title, content: content, images: [...currentImagesList],
                         connections: creatingType === 'hub' ? connections : undefined,
                         parentIds: creatingType === 'note' ? parentIds : undefined
                     };
