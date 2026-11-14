@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v4.4 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v4.8 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
-            --glass: rgba(18, 30, 26, 0.94);
+            --glass: rgba(18, 30, 26, 0.96);
             --glass-hover: rgba(28, 46, 40, 0.98);
             --border: rgba(220, 205, 186, 0.22);
             --forest-green: #406359;
@@ -157,77 +157,80 @@
         .merge-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; max-height: 100px; overflow-y: auto; }
         .merge-tag { font-size: 0.75em; padding: 3px 9px; border-radius: 12px; background: rgba(64, 99, 89, 0.4); border: 1px solid var(--forest-light); color: var(--sand-bright); }
 
+        /* Khung Drawer bự gần trùm full màn hình (Giữ nguyên kích thước rộng rãi theo ý bro) */
         .drawer {
-            position: fixed; top: 15px; right: 15px; width: 410px; max-width: calc(100vw - 30px); max-height: calc(100vh - 30px);
-            background: var(--glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1.5px solid var(--border); border-radius: 20px; padding: 20px;
+            position: fixed; top: 3vh; left: 3vw; right: 3vw; bottom: 3vh;
+            width: 94vw !important; max-width: 94vw !important;
+            height: 94vh !important; max-height: 94vh !important;
+            background: var(--glass); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            border: 1.5px solid var(--border); border-radius: 22px; padding: 28px;
             z-index: 60; display: flex; flex-direction: column; overflow-y: auto;
-            box-shadow: -15px 20px 50px rgba(0, 0, 0, 0.75);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
         }
-        .drawer.hidden { transform: translateX(450px); opacity: 0; pointer-events: none; }
+        .drawer.hidden { transform: scale(0.92) translateY(30px); opacity: 0; pointer-events: none; }
 
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .badge { font-size: 0.72em; text-transform: uppercase; letter-spacing: 1.2px; padding: 5px 12px; border-radius: 20px; background: rgba(64, 99, 89, 0.45); color: var(--sand-beige); border: 1px solid rgba(220, 205, 186, 0.3); font-weight: 700; }
-        .close-btn { background: rgba(220, 205, 186, 0.08); border: 1px solid var(--border); color: var(--text-sub); font-size: 1.1em; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: 0.2s; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .badge { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1.2px; padding: 6px 14px; border-radius: 20px; background: rgba(64, 99, 89, 0.45); color: var(--sand-beige); border: 1px solid rgba(220, 205, 186, 0.3); font-weight: 700; }
+        .close-btn { background: rgba(220, 205, 186, 0.08); border: 1px solid var(--border); color: var(--text-sub); font-size: 1.2em; cursor: pointer; padding: 6px 12px; border-radius: 10px; transition: 0.2s; }
         .close-btn:hover { color: var(--sand-bright); background: var(--forest-green); border-color: var(--sand-beige); }
 
-        #viewTitle { font-size: 1.25em; font-weight: 800; color: var(--sand-beige); margin-bottom: 8px; line-height: 1.35; }
-        #viewContent { font-size: 0.9em; color: var(--sand-bright); line-height: 1.65; white-space: pre-line; user-select: text; min-height: 45px; background: rgba(10, 18, 15, 0.4); padding: 12px; border-radius: 12px; border: 1px solid rgba(220, 205, 186, 0.1); }
+        #viewTitle { font-size: 1.4em; font-weight: 800; color: var(--sand-beige); margin-bottom: 10px; line-height: 1.35; }
+        #viewContent { font-size: 0.98em; color: var(--sand-bright); line-height: 1.7; white-space: pre-line; user-select: text; min-height: 80px; background: rgba(10, 18, 15, 0.45); padding: 16px; border-radius: 14px; border: 1px solid rgba(220, 205, 186, 0.1); }
         
-        #viewImageBox { margin-top: 14px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: none; }
-        #viewImage { width: 100%; height: auto; display: block; object-fit: cover; cursor: zoom-in; }
+        #viewImageBox { margin-top: 16px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); display: none; }
+        #viewImage { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: contain; cursor: zoom-in; }
 
-        .links-section { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .section-label { font-size: 0.74em; color: var(--text-sub); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
+        .links-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .section-label { font-size: 0.78em; color: var(--text-sub); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 10px; display: block; }
         
         .connection-card {
-            margin-top: 8px; padding: 11px 13px; border-radius: 12px; background: rgba(64, 99, 89, 0.2);
+            margin-top: 8px; padding: 12px 15px; border-radius: 12px; background: rgba(64, 99, 89, 0.2);
             border: 1px solid var(--border); transition: 0.2s; cursor: pointer;
         }
         .connection-card:hover { border-color: var(--sand-beige); background: rgba(64, 99, 89, 0.38); transform: translateY(-1px); }
-        .connection-title { font-size: 0.86em; font-weight: 700; color: var(--sand-beige); display: flex; align-items: center; justify-content: space-between; }
-        .connection-desc { font-size: 0.81em; color: var(--sand-bright); margin-top: 4px; line-height: 1.4; }
+        .connection-title { font-size: 0.9em; font-weight: 700; color: var(--sand-beige); display: flex; align-items: center; justify-content: space-between; }
+        .connection-desc { font-size: 0.84em; color: var(--sand-bright); margin-top: 5px; line-height: 1.4; }
 
-        .drawer-actions { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .drawer-actions { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .btn-action-base {
-            width: 100%; padding: 10px 14px; border-radius: 10px; font-size: 0.85em; font-weight: 700; cursor: pointer;
+            flex: 1; padding: 12px 14px; border-radius: 12px; font-size: 0.88em; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.25s; border: 1px solid transparent;
         }
         .btn-export { background: rgba(64, 99, 89, 0.28); border-color: var(--forest-light); color: var(--sand-bright); }
         .btn-export:hover { background: var(--forest-green); border-color: var(--sand-beige); box-shadow: 0 4px 15px rgba(64, 99, 89, 0.4); }
         .btn-edit { background: rgba(220, 205, 186, 0.12); border-color: var(--border); color: var(--sand-beige); }
         .btn-edit:hover { background: var(--sand-beige); color: var(--bg-deep); border-color: var(--sand-beige); }
-        .btn-delete { background: rgba(217, 83, 79, 0.12); border-color: rgba(217, 83, 79, 0.3); color: #f4a2a6; }
+        .btn-delete { background: rgba(217, 83, 79, 0.12); border-color: rgba(217, 83, 79, 0.3); color: #f4a2a6; flex: 0.5; }
         .btn-delete:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-size: 0.8em; color: var(--sand-beige); margin-bottom: 5px; font-weight: 600; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85em; color: var(--sand-beige); margin-bottom: 6px; font-weight: 600; }
         input[type="text"], textarea, select {
-            width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
-            background: rgba(10, 18, 15, 0.85); color: var(--sand-bright); font-size: 0.88em;
+            width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+            background: rgba(10, 18, 15, 0.85); color: var(--sand-bright); font-size: 0.95em;
         }
-        textarea { height: 90px; resize: vertical; }
+        textarea { height: 240px; resize: vertical; }
         input:focus, textarea:focus, select:focus { outline: none; border-color: var(--sand-beige); }
 
-        .link-builder-container, .notes-checklist-container, .parent-hubs-checklist { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
-        .link-row { padding: 9px; border-radius: 10px; background: rgba(220, 205, 186, 0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
-        .link-row-top { display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; color: var(--sand-bright); font-weight: 600; }
+        .link-builder-container, .notes-checklist-container, .parent-hubs-checklist { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
+        .link-row { padding: 10px 12px; border-radius: 12px; background: rgba(220, 205, 186, 0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .link-row-top { display: flex; align-items: center; justify-content: space-between; font-size: 0.88em; color: var(--sand-bright); font-weight: 600; }
 
         .img-dropzone {
-            border: 1.5px dashed var(--forest-light); border-radius: 10px; padding: 12px;
-            text-align: center; font-size: 0.82em; color: var(--text-sub); cursor: pointer;
+            border: 1.5px dashed var(--forest-light); border-radius: 12px; padding: 18px;
+            text-align: center; font-size: 0.88em; color: var(--text-sub); cursor: pointer;
             background: rgba(64, 99, 89, 0.12); transition: 0.2s;
         }
         .img-dropzone:hover { background: rgba(64, 99, 89, 0.25); color: var(--sand-bright); border-color: var(--sand-beige); }
-        #previewImg { max-width: 100%; max-height: 130px; border-radius: 8px; margin-top: 6px; display: none; }
+        #previewImg { max-width: 100%; max-height: 180px; border-radius: 10px; margin-top: 10px; display: none; }
 
         .btn-submit {
-            width: 100%; padding: 11px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.92em;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 1em;
             background: linear-gradient(135deg, var(--forest-green), #324f46);
-            border: 1px solid var(--sand-beige); color: var(--sand-bright); cursor: pointer; transition: 0.25s; margin-top: 6px;
+            border: 1px solid var(--sand-beige); color: var(--sand-bright); cursor: pointer; transition: 0.25s; margin-top: 10px;
         }
-        .btn-submit:hover { background: var(--sand-beige); color: var(--bg-deep); box-shadow: 0 0 20px rgba(220, 205, 186, 0.4); }
+        .btn-submit:hover { background: var(--sand-beige); color: var(--bg-deep); box-shadow: 0 0 25px rgba(220, 205, 186, 0.4); }
 
         .hint-bar {
             position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
@@ -237,7 +240,7 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(220, 205, 186, 0.3); border-radius: 10px; }
     </style>
 </head>
@@ -254,7 +257,7 @@
                 <span class="logo-text">🌿 FOREST NEXUS</span>
             </div>
             <div class="header-right-group">
-                <button class="sound-toggle-btn" id="soundModeBtn" onclick="cycleSoundMode()" title="Đổi hiệu ứng âm thanh">💧</button>
+                <button class="sound-toggle-btn" id="soundModeBtn" onclick="cycleSoundMode()" title="Đổi hiệu ứng âm thanh UI">💧</button>
                 <button class="btn-new-trigger" onclick="openChoiceModal()" title="Tạo mới kiến thức">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -314,7 +317,7 @@
         </div>
     </div>
 
-    <!-- Ngăn xem chi tiết (Drawer) -->
+    <!-- Ngăn xem chi tiết (Drawer - Bự trùm full màn hình) -->
     <div class="drawer hidden" id="viewDrawer">
         <div class="drawer-header">
             <span class="badge" id="viewBadgeType">✨ Chi tiết dữ liệu</span>
@@ -332,13 +335,13 @@
         </div>
 
         <div class="drawer-actions">
-            <button class="btn-action-base btn-export" onclick="exportCurrentNode()">📥 Xuất file mục này (.txt)</button>
-            <button class="btn-action-base btn-edit" onclick="openEditCurrentNode()">✏️ Chỉnh sửa nội dung</button>
-            <button class="btn-action-base btn-delete" onclick="deleteCurrentNode()">🗑️ Xóa mục này</button>
+            <button class="btn-action-base btn-export" onclick="exportCurrentNode()">📥 Xuất file (.txt)</button>
+            <button class="btn-action-base btn-edit" onclick="openEditCurrentNode()">✏️ Chỉnh sửa</button>
+            <button class="btn-action-base btn-delete" onclick="deleteCurrentNode()">🗑️ Xóa</button>
         </div>
     </div>
 
-    <!-- Ngăn tạo mới / chỉnh sửa Hub hoặc Note -->
+    <!-- Ngăn tạo mới / chỉnh sửa Hub hoặc Note (Bự trùm full màn hình) -->
     <div class="drawer hidden" id="createDrawer">
         <div class="drawer-header">
             <span class="badge" id="drawerTitleBadge">🌱 Tạo Mới</span>
@@ -385,7 +388,7 @@
     <div class="hint-bar">💡 Kéo Note vào Hub • 2 ngón xoay/zoom bản đồ • Tên luôn đứng thẳng</div>
 
     <script>
-        // --- HỆ THỐNG ÂM THANH UI ---
+        // --- HỆ THỐNG ÂM THANH GIAO DIỆN UI ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let soundMode = localStorage.getItem('forestSoundMode') || 'dew';
 
@@ -466,7 +469,7 @@
         }
 
         // --- CẤU TRÚC DỮ LIỆU ---
-        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.4')) || [
+        let brainData = JSON.parse(localStorage.getItem('forestNexusV4.8')) || [
             { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', image: '', connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
             { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', image: '', connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
             { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', image: '', connections: [] }
@@ -489,7 +492,7 @@
         let panX = 0;
         let panY = 0;
         let scale = 1;
-        let rotationAngle = 0; // Góc xoay bản đồ
+        let rotationAngle = 0;
         
         let isPanning = false;
         let startPanX = 0;
@@ -638,7 +641,7 @@
         }
 
         function saveToStorage() {
-            try { localStorage.setItem('forestNexusV4.4', JSON.stringify(brainData)); }
+            try { localStorage.setItem('forestNexusV4.8', JSON.stringify(brainData)); }
             catch (e) { alert('Bộ nhớ trình duyệt đầy do ảnh quá lớn!'); }
         }
 
@@ -831,9 +834,9 @@
                 const isChecked = (note.parentIds && note.parentIds.includes(selectedParentId));
                 const row = document.createElement('div');
                 row.className = 'link-row';
-                row.style.padding = '6px 8px';
+                row.style.padding = '8px 10px';
                 row.innerHTML = `
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--sand-bright); font-size:0.82em; margin:0;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--sand-bright); font-size:0.88em; margin:0;">
                         <input type="checkbox" class="note-checklist-cb" value="${note.id}" ${isChecked ? 'checked' : ''}>
                         <span>📝 ${note.title}</span>
                     </label>
@@ -852,9 +855,9 @@
                 const isChecked = currentParentIds.includes(h.id);
                 const row = document.createElement('div');
                 row.className = 'link-row';
-                row.style.padding = '6px 8px';
+                row.style.padding = '8px 10px';
                 row.innerHTML = `
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--sand-bright); font-size:0.82em; margin:0;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--sand-bright); font-size:0.88em; margin:0;">
                         <input type="checkbox" class="parent-hub-cb" value="${h.id}" ${isChecked ? 'checked' : ''}>
                         <span>📚 ${h.title}</span>
                     </label>
@@ -988,12 +991,12 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 700;
+                    const MAX_WIDTH = 800;
                     let width = img.width; let height = img.height;
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.7);
+                    currentBase64Image = canvas.toDataURL('image/jpeg', 0.75);
                     const preview = document.getElementById('previewImg');
                     preview.src = currentBase64Image; preview.style.display = 'block';
                 };
@@ -1145,7 +1148,6 @@
             ctx.scale(scale, scale);
             ctx.translate(-window.innerWidth / 2, -window.innerHeight / 2);
 
-            // 1. Vẽ dây nối Note đến các Hub cha
             brainData.forEach(node => {
                 if (node.type === 'note' && node.parentIds && node.parentIds.length > 0) {
                     const p1 = nodesPos[node.id];
@@ -1161,7 +1163,6 @@
                 }
             });
 
-            // Đường dẫn hướng khi kéo Note
             if (draggingNodeId) {
                 const draggedNode = brainData.find(n => n.id === draggingNodeId);
                 if (draggedNode && draggedNode.type === 'note') {
@@ -1187,7 +1188,6 @@
                 }
             }
 
-            // 2. Vẽ liên kết chéo giữa các Hub
             const drawnLinks = new Set();
             brainData.forEach(node => {
                 const p1 = nodesPos[node.id];
@@ -1217,7 +1217,6 @@
                                 const labelText = isMissingPoint ? '⚠️ BÁO ĐỘNG ĐỎ' : conn.commonPoint;
                                 const midX = (p1.x + p2.x) / 2; const midY = (p1.y + p2.y) / 2;
 
-                                // Nhãn điểm chung cũng được giữ thẳng đứng ngang màn hình để dễ đọc
                                 ctx.save();
                                 ctx.translate(midX, midY);
                                 ctx.rotate(-rotationAngle);
@@ -1245,7 +1244,6 @@
                 }
             });
 
-            // 3. Xung điện thần kinh
             for (let i = pulses.length - 1; i >= 0; i--) {
                 const pulse = pulses[i]; pulse.progress += 0.028;
                 const p1 = nodesPos[pulse.from]; const p2 = nodesPos[pulse.to];
@@ -1255,7 +1253,6 @@
                 ctx.fillStyle = '#DCCDBA'; ctx.shadowBlur = 8; ctx.shadowColor = '#618c7f'; ctx.fill(); ctx.shadowBlur = 0;
             }
 
-            // Sóng vòng lan tỏa
             for (let i = snapAnimations.length - 1; i >= 0; i--) {
                 let anim = snapAnimations[i];
                 anim.radius += 2.2; anim.alpha -= 0.035;
@@ -1265,7 +1262,6 @@
                 ctx.lineWidth = 2.2; ctx.stroke();
             }
 
-            // 4. Vẽ các hạt nhân & KHÓA GÓC XOAY TÊN CHỮ (Tên luôn thẳng đứng horizontal)
             brainData.forEach(node => {
                 const p = nodesPos[node.id];
                 if (!p) return;
@@ -1295,10 +1291,9 @@
                 ctx.strokeStyle = (isSelected || isMulti) ? '#ffffff' : '#DCCDBA';
                 ctx.stroke();
 
-                // 🌟 TÍNH NĂNG MỚI: Khóa góc xoay để tên Hub và Note luôn nằm thẳng ngang màn hình
                 ctx.save();
                 ctx.translate(p.x + r + 10, p.y + 4);
-                ctx.rotate(-rotationAngle); // Triệt tiêu góc xoay của camera để chữ luôn cố định hướng ngang
+                ctx.rotate(-rotationAngle);
 
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.9)'; ctx.shadowBlur = 6;
                 ctx.fillStyle = isMulti ? '#e9c46a' : (isSelected ? '#ffffff' : (isHub ? '#f3eadc' : '#f3eadc'));
