@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v5.2 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v5.3 - Mạng Lưới Thần Kinh Sinh Học</title>
     <style>
         :root {
             --bg-deep: #0b1412;
@@ -157,7 +157,6 @@
         .merge-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; max-height: 100px; overflow-y: auto; }
         .merge-tag { font-size: 0.75em; padding: 3px 9px; border-radius: 12px; background: rgba(64, 99, 89, 0.4); border: 1px solid var(--forest-light); color: var(--sand-bright); }
 
-        /* Khung Drawer bự trùm full màn hình */
         .drawer {
             position: fixed; top: 3vh; left: 3vw; right: 3vw; bottom: 3vh;
             width: 94vw !important; max-width: 94vw !important;
@@ -188,7 +187,6 @@
         .image-view-card img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: transform 0.2s; }
         .image-view-card img:hover { transform: scale(1.04); }
 
-        /* Modal phóng to ảnh trực tiếp không bị nhảy trang trắng */
         .image-modal-overlay {
             position: fixed; inset: 0; background: rgba(5, 10, 8, 0.92); backdrop-filter: blur(10px);
             z-index: 300; display: flex; align-items: center; justify-content: center;
@@ -278,7 +276,7 @@
     <div class="ambient-glow"></div>
     <canvas id="neuralCanvas"></canvas>
 
-    <!-- Khung Sidebar chính (Đã gỡ bỏ hoàn toàn nút sao lưu/khôi phục) -->
+    <!-- Khung Sidebar chính -->
     <div class="sidebar" id="sidebarPanel">
         <div class="sidebar-header">
             <div class="header-left-group">
@@ -506,7 +504,7 @@
 
         function migrateOldData() {
             if (localStorage.getItem(STORAGE_KEY)) return;
-            for (let i = 4.6; i <= 5.1; i += 0.1) {
+            for (let i = 4.6; i <= 5.2; i += 0.1) {
                 const oldKey = `forestNexusV${i.toFixed(1)}`;
                 const oldData = localStorage.getItem(oldKey);
                 if (oldData) {
@@ -1474,8 +1472,8 @@
                 const factor = currentDistance / initialPinchDistance;
                 scale = Math.max(0.4, Math.min(baseScale * factor, 3.5));
 
-                const angleDiv = currentAngle - initialPinchAngle;
-                rotationAngle = baseRotation + angleDiv;
+                const angleDelta = currentAngle - initialPinchAngle;
+                rotationAngle = baseRotation + angleDelta;
             }
         }, { passive: true });
 
@@ -1520,7 +1518,7 @@
         }
 
         function handleEnd() {
-            if, (draggingNodeId) {
+            if (draggingNodeId) {
                 if (isDraggingMoved) {
                     const draggedNode = brainData.find(n => n.id === draggingNodeId);
                     if (draggedNode && draggedNode.type === 'note') {
