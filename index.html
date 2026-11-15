@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Forest Nexus v5.6 - Mạng Lưới Thần Kinh Sinh Học</title>
+    <title>Forest Nexus v5.9 - Mạng Lưới Sinh Học & Đồng Bộ Gist</title>
     <style>
         :root {
             --bg-deep: #050a08;
             --glass: rgba(12, 24, 20, 0.92);
             --glass-hover: rgba(18, 35, 29, 0.96);
             --border: rgba(220, 205, 186, 0.32);
-            --border-glow: rgba(220, 205, 186, 0.6);
             --forest-green: #3b5e53;
             --forest-light: #527c6e;
             --note-green: #254238;
@@ -60,13 +59,13 @@
         .header-left-group { display: flex; align-items: center; gap: 10px; overflow: hidden; }
         .header-right-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-        .sidebar-toggle-btn, .sound-toggle-btn {
+        .sidebar-toggle-btn, .sound-toggle-btn, .sync-toggle-btn {
             width: 36px; height: 36px; border-radius: 11px; border: 1.2px solid var(--border);
             background: rgba(59, 94, 83, 0.4); color: var(--sand-beige);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: 0.2s; font-size: 0.95em; flex-shrink: 0;
         }
-        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover { background: var(--forest-green); border-color: var(--sand-bright); color: var(--sand-bright); box-shadow: 0 0 12px rgba(82, 124, 110, 0.4); }
+        .sidebar-toggle-btn:hover, .sound-toggle-btn:hover, .sync-toggle-btn:hover { background: var(--forest-green); border-color: var(--sand-bright); color: var(--sand-bright); box-shadow: 0 0 12px rgba(82, 124, 110, 0.4); }
 
         .logo-text {
             font-size: 1.1em; font-weight: 800; letter-spacing: 0.9px;
@@ -141,14 +140,14 @@
             opacity: 0; pointer-events: none; transition: 0.25s; padding: 16px;
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .choice-modal, .merge-modal {
+        .choice-modal, .merge-modal, .sync-modal {
             background: var(--glass); border: 1.5px solid var(--border); border-radius: 24px;
             width: 100%; max-width: 420px; padding: 26px; box-shadow: 0 25px 65px rgba(0, 0, 0, 0.9);
             transform: scale(0.92); transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .modal-overlay.open .choice-modal, .modal-overlay.open .merge-modal { transform: scale(1); }
-        .choice-modal h3, .merge-modal h3 { color: var(--sand-beige); font-size: 1.2em; margin-bottom: 16px; text-align: center; }
-        
+        .modal-overlay.open .choice-modal, .modal-overlay.open .merge-modal, .modal-overlay.open .sync-modal { transform: scale(1); }
+        .choice-modal h3, .merge-modal h3, .sync-modal h3 { color: var(--sand-beige); font-size: 1.2em; margin-bottom: 16px; text-align: center; }
+
         .choice-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .choice-card {
             background: rgba(59, 94, 83, 0.3); border: 1.2px solid var(--border); border-radius: 16px;
@@ -265,6 +264,14 @@
         }
         .btn-submit:hover { background: var(--sand-bright); color: var(--bg-deep); border-color: var(--sand-bright); box-shadow: 0 0 35px rgba(220, 205, 186, 0.6); }
 
+        .sync-status {
+            position: fixed; bottom: 14px; right: 20px; background: rgba(12, 24, 20, 0.92); backdrop-filter: blur(10px);
+            border: 1.2px solid var(--border); padding: 7px 14px; border-radius: 20px;
+            font-size: 0.78em; color: var(--sand-beige); z-index: 5; display: flex; align-items: center; gap: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #527c6e; }
+        .sync-dot.active { background: #e9c46a; box-shadow: 0 0 8px #e9c46a; }
+
         .hint-bar {
             position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
             background: rgba(12, 24, 20, 0.92); backdrop-filter: blur(10px);
@@ -290,6 +297,7 @@
                 <span class="logo-text">🌿 FOREST NEXUS</span>
             </div>
             <div class="header-right-group">
+                <button class="sync-toggle-btn" onclick="openSyncModal()" title="Cài đặt Đồng bộ Gist">☁️</button>
                 <button class="sound-toggle-btn" id="soundModeBtn" onclick="cycleSoundMode()" title="Đổi hiệu ứng âm thanh UI">💧</button>
                 <button class="btn-new-trigger" onclick="openChoiceModal()" title="Tạo mới kiến thức">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -303,8 +311,29 @@
         <ul class="node-list" id="nodeList"></ul>
     </div>
 
-    <!-- Nút mở lại sidebar -->
     <button class="sidebar-open-btn" onclick="toggleSidebar()" title="Mở bảng điều khiển">☰</button>
+
+    <!-- Modal Cài đặt Sync Gist -->
+    <div class="modal-overlay" id="syncModalOverlay">
+        <div class="sync-modal">
+            <h3>☁️ Đồng Bộ Cloud qua GitHub Gist</h3>
+            <p style="font-size: 0.84em; color: var(--text-sub); line-height: 1.45; margin-bottom: 14px;">
+                Nhập GitHub Token và Gist ID của bạn để đồng bộ tự động giữa các thiết bị.
+            </p>
+            <div class="form-group">
+                <label>GitHub Personal Access Token:</label>
+                <input type="text" id="syncTokenInput" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>GitHub Gist ID (Bỏ trống nếu muốn tạo mới):</label>
+                <input type="text" id="syncGistIdInput" placeholder="vd: a1b2c3d4e5f6...">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+                <button class="btn-submit" style="background: rgba(217,83,79,0.3); margin-top:0;" onclick="closeSyncModal()">Đóng</button>
+                <button class="btn-submit" style="margin-top:0;" onclick="saveAndSyncConfig()">💾 Lưu & Đồng Bộ Ngay</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal lựa chọn loại tạo mới -->
     <div class="modal-overlay" id="choiceModalOverlay">
@@ -424,7 +453,13 @@
         <button class="btn-submit" id="submitBtnText" onclick="saveNode()">🌿 Kích Hoạt & Lưu Trữ</button>
     </div>
 
-    <div class="hint-bar">💡 Kéo Note vào Hub • 2 ngón xoay/zoom bản đồ • Tên luôn đứng thẳng</div>
+    <!-- Trạng thái sync hiển thị góc dưới phải -->
+    <div class="sync-status" id="syncStatusIndicator">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncText">Đang chạy Local</span>
+    </div>
+
+    <div class="hint-bar">💡 Kéo Note vào Hub • 2 ngón xoay/zoom bản đồ • Đồng bộ Cloud tự động</div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -507,25 +542,140 @@
         }
 
         const STORAGE_KEY = 'forestNexus_UserBrain_v1';
-
-        function migrateOldData() {
-            if (localStorage.getItem(STORAGE_KEY)) return;
-            for (let i = 4.6; i <= 5.5; i += 0.1) {
-                const oldKey = `forestNexusV${i.toFixed(1)}`;
-                const oldData = localStorage.getItem(oldKey);
-                if (oldData) {
-                    localStorage.setItem(STORAGE_KEY, oldData);
-                    break;
-                }
-            }
-        }
-        migrateOldData();
-
         let brainData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
             { id: 1, type: 'hub', title: 'Kỹ Thuật & Động Lực Học', content: 'Nơi lưu trữ các nguyên lý truyền động.', images: [], connections: [{targetId: 2, commonPoint: 'Cơ khí vận hành'}] },
             { id: 2, type: 'hub', title: 'Hệ Thống Truyền Lực', content: 'Cấu tạo ly hợp và hộp số.', images: [], connections: [{targetId: 1, commonPoint: 'Cơ khí vận hành'}] },
             { id: 101, type: 'note', parentIds: [1], title: 'Note: Tỷ số truyền', content: 'i = n1 / n2', images: [], connections: [] }
         ];
+
+        // Cấu hình Gist Sync
+        let githubToken = localStorage.getItem('forest_github_token') || '';
+        let githubGistId = localStorage.getItem('forest_github_gist_id') || '';
+
+        function openSyncModal() {
+            playSound('click');
+            document.getElementById('syncTokenInput').value = githubToken;
+            document.getElementById('syncGistIdInput').value = githubGistId;
+            document.getElementById('syncModalOverlay').classList.add('open');
+        }
+        function closeSyncModal() { playSound('click'); document.getElementById('syncModalOverlay').classList.remove('open'); }
+
+        async function saveAndSyncConfig() {
+            playSound('click');
+            githubToken = document.getElementById('syncTokenInput').value.trim();
+            githubGistId = document.getElementById('syncGistIdInput').value.trim();
+            localStorage.setItem('forest_github_token', githubToken);
+            localStorage.setItem('forest_github_gist_id', githubGistId);
+            closeSyncModal();
+            if (githubToken) {
+                await pullFromGist();
+            }
+        }
+
+        async function pushToGist() {
+            if (!githubToken) return;
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            if(dot) dot.classList.add('active'); 
+            if(text) text.innerText = 'Đang đồng bộ lên mây...';
+
+            const payload = {
+                description: "Forest Nexus Brain Data Backup",
+                public: false,
+                files: {
+                    "forest_nexus_data.json": {
+                        content: JSON.stringify(brainData, null, 2)
+                    }
+                }
+            };
+
+            try {
+                let url = 'https://api.github.com/gists';
+                let method = 'POST';
+                if (githubGistId) {
+                    url = `https://api.github.com/gists/${githubGistId}`;
+                    method = 'PATCH';
+                }
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!githubGistId) {
+                        githubGistId = data.id;
+                        localStorage.setItem('forest_github_gist_id', githubGistId);
+                    }
+                    if(dot) dot.classList.remove('active'); 
+                    if(text) text.innerText = 'Đã đồng bộ Cloud ✓';
+                } else {
+                    if(dot) dot.classList.remove('active'); 
+                    if(text) text.innerText = 'Lỗi đồng bộ!';
+                }
+            } catch (e) {
+                if(dot) dot.classList.remove('active'); 
+                if(text) text.innerText = 'Mất kết nối!';
+            }
+        }
+
+        async function pullFromGist() {
+            if (!githubToken || !githubGistId) {
+                const text = document.getElementById('syncText');
+                if (!githubToken && text) text.innerText = 'Chưa cài đặt Sync (Local)';
+                return;
+            }
+
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            if(dot) dot.classList.add('active'); 
+            if(text) text.innerText = 'Đang kéo dữ liệu từ mây...';
+
+            try {
+                const res = await fetch(`https://api.github.com/gists/${githubGistId}`, {
+                    headers: { 'Authorization': `token ${githubToken}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const file = data.files['forest_nexus_data.json'];
+                    if (file && file.content) {
+                        brainData = JSON.parse(file.content);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(brainData));
+                        initPhysics();
+                        renderSidebar();
+                    }
+                    if(dot) dot.classList.remove('active'); 
+                    if(text) text.innerText = 'Đồng bộ Cloud thành công ✓';
+                } else {
+                    if(dot) dot.classList.remove('active'); 
+                    if(text) text.innerText = 'Không tìm thấy Gist ID!';
+                }
+            } catch (e) {
+                if(dot) dot.classList.remove('active'); 
+                if(text) text.innerText = 'Lỗi kéo dữ liệu!';
+            }
+        }
+
+        function saveToStorage() {
+            try { 
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(brainData)); 
+                pushToGist();
+            }
+            catch (e) { alert('Bộ nhớ trình duyệt đầy do số lượng ảnh quá lớn!'); }
+        }
+
+        window.addEventListener('load', () => {
+            updateSoundIcon();
+            if (githubToken && githubGistId) {
+                pullFromGist();
+            }
+        });
 
         let selectedId = null;
         let editingNodeId = null;
@@ -540,24 +690,15 @@
         let isMobileMultiSelectMode = false;
         let longPressTimer = null;
 
-        let panX = 0;
-        let panY = 0;
-        let scale = 1;
-        let rotationAngle = 0;
-        
-        let isPanning = false;
-        let startPanX = 0;
-        let startPanY = 0;
-        
-        let initialPinchDistance = null;
-        let initialPinchAngle = null;
-        let baseScale = 1;
-        let baseRotation = 0;
+        let panX = 0, panY = 0, scale = 1, rotationAngle = 0;
+        let isPanning = false, startPanX = 0, startPanY = 0;
+        let initialPinchDistance = null, initialPinchAngle = null, baseScale = 1, baseRotation = 0;
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (document.getElementById('mergeModalOverlay').classList.contains('open')) closeMergeModal();
                 else if (document.getElementById('choiceModalOverlay').classList.contains('open')) closeChoiceModal();
+                else if (document.getElementById('syncModalOverlay').classList.contains('open')) closeSyncModal();
                 else if (document.getElementById('imageModalOverlay').classList.contains('open')) closeImageModal();
                 else if (multiSelectedIds.size > 0 || isMobileMultiSelectMode) clearMultiSelect();
             }
@@ -696,11 +837,6 @@
                     }
                 }
             });
-        }
-
-        function saveToStorage() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(brainData)); }
-            catch (e) { alert('Bộ nhớ trình duyệt đầy do số lượng ảnh quá lớn!'); }
         }
 
         function renderSidebar() {
